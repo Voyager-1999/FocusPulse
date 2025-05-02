@@ -1,0 +1,19 @@
+# 强制所有文本文件使用 LF 换行符
+* text=auto
+*.js text eol=lf
+*.vue text eol=lf
+*.json text eol=lf
+*.html text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.css text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.jsx text eol=lf
+*.less text eol=lf
+*.scss text eol=lf
+.gitignore text eol=lf
+.npmrc text eol=lf
+.pretterignore text eol=lf
+.prettierrc.yaml text eol=lf
+.editorconfig text eol=lf
