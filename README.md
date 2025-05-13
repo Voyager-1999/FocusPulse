@@ -8,6 +8,15 @@ An Electron application with Vue
 
 ## Project Setup
 
+### 克隆项目
+```bash
+// 使用http
+git clone https://github.com/Voyager-1999/FocusPulse.git
+// 使用SSH
+git clone git@github.com:Voyager-1999/FocusPulse.git
+```
+
+
 ### Install 安装依赖
 ```bash
 $ npm install
