@@ -84,7 +84,7 @@
                     <todoItem :todo="todo" :selectedDate="selectedDate"/>
                 </div>
                 <div v-for="todo in completedTodos" :key="todo.id" class="todo-item">
-                    <todoItem :todo="todo" :selectedDate="selectedDate"/>
+                    <todoItem :todo="todo"/>
                 </div>
             </div>
         </div>

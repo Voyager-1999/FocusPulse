@@ -63,28 +63,27 @@ onMounted(() => {
 <style scoped>
 /* 基础布局设置 */
 .app {
-display: flex;
-height: 100vh;
-margin: 0;
-padding: 0;
-background-color: #f5f7fa;
+    display: flex;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
 }
 
 /* 导航栏样式 */
 .navigation {
-width: 180px;
-height: 100vh;
-background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-color: white;
-display: flex;
-flex-direction: column;
-padding: 16px 0;
-position: fixed;
-left: 0;
-top: 0;
-bottom: 0;
-z-index: 100;
-box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    width: 180px;
+    height: 100vh;
+    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .nav-header {
@@ -168,12 +167,11 @@ border-color: rgba(255, 255, 255, 0.3);
 
 /* 主内容区样式 */
 .content {
-flex: 1;
-margin-left: 180px;
-padding: 20px;
-background-color: #f5f7fa;
-min-height: 100vh;
-box-sizing: border-box;
+    flex: 1;
+    margin-left: 180px;
+    padding: 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
 /* 响应式设计 */

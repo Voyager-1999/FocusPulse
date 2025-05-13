@@ -1,5 +1,5 @@
 <template>
-  <div class="todo-item-root" :class="{ done: todo.checked }">
+  <div class="todo-item-root">
     <!-- 左侧复选框 -->
     <el-checkbox
       :model-value="todo.checked"
@@ -38,10 +38,10 @@
 
 
 <script setup>
-    import { ref, computed, watch } from 'vue'
+    import { ref, computed } from 'vue'
     import { useTodoListStore } from '../store/todoList.store'
     import { Delete, ArrowDown, ArrowUp } from '@element-plus/icons-vue'
-    const { todo, selectedDate } = defineProps(['todo', 'selectedDate'])
+    const { todo } = defineProps(['todo'])
 
     const TodoListStore = useTodoListStore()
     const showSubTodos = ref(true)
@@ -80,38 +80,41 @@
   padding: 10px 0;
   position: relative;
 }
-.todo-item-root.done {
-  background: #f5f7fa;
-  opacity: 0.7;
-}
+
 .main-checkbox {
   margin-top: 4px;
 }
+
 .todo-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
+
 .todo-text {
   font-size: 16px;
   font-weight: 500;
   color: #303133;
   word-break: break-all;
 }
+
 .todo-desc {
   font-size: 13px;
   color: #909399;
   margin-top: 2px;
   word-break: break-all;
 }
+
 .todo-done {
   text-decoration: line-through;
   color: #bfbfbf !important;
 }
+
 .subtodo-toggle-row {
   margin-top: 4px;
 }
+
 .subtodo-list {
   margin-top: 4px;
   padding-left: 8px;
@@ -119,6 +122,7 @@
   flex-direction: column;
   gap: 2px;
 }
+
 .subtodo-item {
   display: flex;
   align-items: center;
@@ -126,24 +130,29 @@
   font-size: 13px;
   color: #606266;
 }
+
 .subtodo-done {
   text-decoration: line-through;
   color: #bfbfbf;
 }
+
 .delete-btn {
   position: absolute;
   right: 0;
   top: 6px;
   color: #f56c6c;
 }
+
 .delete-btn:hover {
   color: #ff0000;
 }
+
 /* 选中时 */
 :deep(.main-checkbox.is-checked .el-checkbox__inner) {
   border-color: v-bind(mainColor) !important;
   background-color: v-bind(mainColor) !important;
 }
+
 /* 未选中时 */
 :deep(.main-checkbox .el-checkbox__inner) {
   border-color: v-bind(mainColor) !important;
