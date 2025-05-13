@@ -8,19 +8,25 @@ An Electron application with Vue
 
 ## Project Setup
 
-### Install
-
+### Install 安装依赖
 ```bash
 $ npm install
 ```
 
-### Development
+### Development 运行开发环境
 
 ```bash
 $ npm run dev
 ```
 
-### Build
+### 构建
+
+```bash
+$ npm run build
+```
+
+
+### Build 打包成安装包
 
 ```bash
 # For windows
