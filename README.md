@@ -49,6 +49,23 @@ $ npm run build:mac
 $ npm run build:linux
 ```
 
+### 如何推送本地修改
+该仓库只有一个分支main，克隆后应该会自动在本地创建一个同名的分支并自动建立追踪关系，无需手动关联
+```bash
+$ git remote add origin https://github.com/Voyager-1999/FocusPulse.git //关联该仓库并将远程仓库命名为origin
+$ git remote -v //查看当前已关联的远程仓库
+$ git remote remove <remote-name> // 删除指定的远程仓库
+
+$ git branch -vv // 查看本地分支与远程分支的关联关系
+
+$ git branch -M main // 强制重命名当前分支为main
+
+$ git push origin main // 向远程仓库推送本地分支main
+
+// 当远程分支前于本地分支时，推送会失败，此时先抓取最新提交，然后在本地合并，解决冲突(可能需要手动解决），再推送
+$ git pull // 抓取
+```
+
 ## 已安装插件
 
 ### vue @vitejs/plugin-vue 支持单文件组件
