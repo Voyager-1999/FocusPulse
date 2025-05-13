@@ -14,6 +14,7 @@ An Electron application with Vue
 git clone https://github.com/Voyager-1999/FocusPulse.git
 // 使用SSH
 git clone git@github.com:Voyager-1999/FocusPulse.git
+// 或者通过右上角下载压缩包
 ```
 
 
