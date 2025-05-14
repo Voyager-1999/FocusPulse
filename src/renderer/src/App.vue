@@ -8,7 +8,13 @@
         </div>
         
         <div class="nav-links">
-          <RouterLink :to="{ name: 'DayToDo' }" class="nav-link">
+          <RouterLink :to="{ 
+            name: 'DayToDo', 
+            query: {
+              city: cityData?.city,
+              weather: weatherData?.weather
+            }
+          }" class="nav-link">
             <el-icon><List /></el-icon>
             <span>Day Todo</span>
           </RouterLink>
@@ -58,15 +64,78 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { List, Timer, Calendar, Setting, View, Clock } from '@element-plus/icons-vue'
 import { useTodoListStore } from './store/todoList.store'
-import { useSortsStore } from './store/sorts.store' 
+import { useSortsStore } from './store/sorts.store'
 import { useConfigStore } from './store/config.store'
-import { onMounted, ref } from 'vue'
+import { onMounted, onBeforeMount, ref } from 'vue'
 import setting from './components/setting.vue'
+import AMapLoader from '@amap/amap-jsapi-loader';
 
 const TodoListStore = useTodoListStore()
 const sortsStore = useSortsStore()
 const configStore = useConfigStore()
 const showSettings = ref(false)
+
+// 将数据转换为响应式
+const cityData = ref(null)
+const weatherData = ref(null)
+let AMapInstance = null
+
+// 加载高德地图
+function loadAMap(){
+  window._AMapSecurityConfig = {
+    securityJsCode: "c82d1d5ab59cd55e73a3cdedfb8f2510",
+  };
+  AMapLoader.load({
+    key: "a2073bdbfee2977c91b2005a9d46b7b6", // 申请好的Web端开发者Key，首次调用 load 时必填
+    version: "2.0", // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
+    plugins: ["AMap.CitySearch", "AMap.Weather"], //需要使用的的插件列表
+  })
+    .then((AMap) => {
+      AMapInstance = AMap
+      loadCityInfo()
+    })
+    .catch((e) => {
+      console.log('地图加载失败：', e);
+    });
+}
+
+// 加载城市信息
+function loadCityInfo() {
+  if (!AMapInstance) return
+  
+  AMapInstance.plugin('AMap.CitySearch', function () {
+    let citySearch = new AMapInstance.CitySearch()
+    citySearch.getLocalCity(function (status, result) {
+      if (status === 'complete' && result.info === 'OK') {
+        console.log('城市信息：', result)
+        cityData.value = result
+        // 获取到城市信息后加载天气
+        loadWeatherInfo()
+      }
+    })
+  })
+}
+
+// 加载天气信息
+function loadWeatherInfo() {
+  if (!AMapInstance || !cityData.value) return
+  
+  AMapInstance.plugin("AMap.Weather", function () {
+    let weather = new AMapInstance.Weather();
+    weather.getLive(cityData.value.city, function (err, data) {
+      if (err) {
+        console.error('获取天气信息失败：', err)
+        return
+      }
+      console.log('天气信息：', data);
+      weatherData.value = data
+    });
+  })
+}
+
+onBeforeMount(() => {
+  loadAMap() // 初始化时加载地图
+})
 
 onMounted(() => {
     TodoListStore.loadTodos()

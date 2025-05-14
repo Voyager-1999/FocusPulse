@@ -16,8 +16,28 @@ function createWindow() {
       sandbox: false,
       nodeIntegration: true,
       contextIsolation: true,
+      webSecurity: true,
       permissions: ['geolocation']
     }
+  })
+
+  // 设置 CSP 策略
+  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [
+          "default-src 'self' https://*.amap.com",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.amap.com https://webapi.amap.com",
+          "script-src-elem 'self' 'unsafe-inline' https://*.amap.com https://webapi.amap.com",
+          "style-src 'self' 'unsafe-inline' https://*.amap.com",
+          "img-src 'self' data: https://*.amap.com",
+          "connect-src 'self' https://*.amap.com",
+          "font-src 'self' data:",
+          "media-src 'self'"
+        ].join('; ')
+      }
+    })
   })
 
   mainWindow.on('ready-to-show', () => {

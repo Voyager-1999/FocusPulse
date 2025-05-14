@@ -2,15 +2,25 @@
     <div class="DayToDo">
         <div class="header">
             <div class="header-top">
-                <el-date-picker
-                    v-model="selectedDate"
-                    type="date"
-                    placeholder="选择日期"
-                    format="YYYY-MM-DD"
-                    value-format="YYYYMMDD"
-                    :teleported="false"
-                    :popper-class="'day-todo-picker'"
-                />
+                <div class="date-container">
+                    <el-date-picker
+                        v-model="selectedDate"
+                        type="date"
+                        placeholder="选择日期"
+                        format="YYYY-MM-DD"
+                        value-format="YYYYMMDD"
+                        :teleported="false"
+                        :popper-class="'day-todo-picker'"
+                    />
+                    <div class="city-weather-icon-container">
+                        <span class="city-text">{{ route.query.city }}</span>
+                        <span class="weather-text">{{ route.query.weather }}</span>
+                        <el-icon class="weather-icon">
+                            <component :is="getWeatherIcon(route.query.weather)" />
+                        </el-icon>
+
+                    </div>
+                </div>
                 <div class="sort-container">
                     <el-popover
                         ref="sortPopoverRef"
@@ -102,14 +112,26 @@
     import { ref, computed, onMounted } from 'vue'
     import todoItem from '../components/todoItem.vue'
     import addSort from '../components/addSort.vue'
-    import { ArrowDown, Plus } from '@element-plus/icons-vue'
+    import { 
+        ArrowDown, 
+        Plus, 
+        Sunny,
+        Cloudy,
+        MostlyCloudy,
+        PartlyCloudy,
+        Drizzling,
+        Pouring
+    } from '@element-plus/icons-vue'
     import moment from 'moment'
     import editTodo from '../components/editTodo.vue'
+    import { useRoute } from 'vue-router'
 
 
     const TodoListStore = useTodoListStore()
     const sortsStore = useSortsStore()
     const configStore = useConfigStore()
+
+    const route = useRoute()
 
     const selectedDate = ref(moment().format('YYYYMMDD'))
     const selectedSort = ref(null)
@@ -156,6 +178,33 @@
     function onQuickEditSaved() {
         showQuickEdit.value = false
         quickInput.value = ''
+    }
+
+    // 根据天气文本返回对应的图标组件
+    function getWeatherIcon(weather) {
+        if (!weather) return Sunny
+        
+        const weatherMap = {
+            '晴': Sunny,
+            '多云': MostlyCloudy,
+            '少云': PartlyCloudy,
+            '毛毛雨/细雨': Drizzling,
+            '小雨': Drizzling,
+            '中雨': Drizzling,
+            '大雨': Pouring,
+            '暴雨': Pouring,
+            '大暴雨': Pouring,
+            '阴': Cloudy
+        }
+        
+        // 遍历天气映射表，查找包含关键字的天气
+        for (const [key, icon] of Object.entries(weatherMap)) {
+            if (weather.includes(key)) {
+                return icon
+            }
+        }
+        
+        return Sunny // 默认返回晴天图标
     }
 </script>
 
@@ -300,5 +349,42 @@
 
 :deep(.add-sort-modal) {
     background-color: rgba(0, 0, 0, 0.5);
+}
+
+.date-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.city-weather-icon-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #606266;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.city-weather-icon-container:hover {
+    background-color: #f5f7fa;
+}
+
+.city-text {
+    font-weight: 500;
+    color: #303133;
+}
+
+.weather-icon {
+    color: #ffa500;
+    font-size: 16px;
+    margin-left: 4px;
+}
+
+.weather-text {
+    color: #606266;
 }
 </style>
