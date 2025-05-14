@@ -83,9 +83,12 @@
                 <div v-for="todo in uncompletedTodos" :key="todo.id" class="todo-item">
                     <todoItem :todo="todo" :selectedDate="selectedDate"/>
                 </div>
-                <div v-for="todo in completedTodos" :key="todo.id" class="todo-item">
-                    <todoItem :todo="todo"/>
+                <div v-if="showChecked">
+                    <div v-for="todo in completedTodos" :key="todo.id" class="todo-item">
+                        <todoItem :todo="todo"/>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -95,6 +98,7 @@
 <script setup>
     import { useTodoListStore } from '../store/ToDoList.store'
     import { useSortsStore } from '../store/sorts.store'
+    import { useConfigStore } from '../store/config.store'
     import { ref, computed, onMounted } from 'vue'
     import todoItem from '../components/todoItem.vue'
     import addSort from '../components/addSort.vue'
@@ -105,6 +109,7 @@
 
     const TodoListStore = useTodoListStore()
     const sortsStore = useSortsStore()
+    const configStore = useConfigStore()
 
     const selectedDate = ref(moment().format('YYYYMMDD'))
     const selectedSort = ref(null)
@@ -113,7 +118,9 @@
     const quickInput = ref('')
     const showQuickEdit = ref(false)
 
-
+    let showChecked = computed(() => {
+        return configStore.config.showChecked
+    })
     // 选择分类
     const selectSort = (sort) => {
         selectedSort.value = sort

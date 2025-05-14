@@ -24,7 +24,14 @@ import { computed, ref, onMounted } from 'vue'
 import todoItem from './todoItem.vue'
 import { ArrowDown, ArrowRight } from '@element-plus/icons-vue'
 import moment from 'moment'
+import { useConfigStore } from '../store/config.store'
 import 'moment/dist/locale/zh-cn'
+
+const configStore = useConfigStore()
+
+let expiredAndCompletedSpan = computed(() => configStore.config.expiredAndCompletedSpan)
+let expiredAndNotCompletedSpan = computed(() => configStore.config.expiredAndNotCompletedSpan)
+let followSpan = computed(() => configStore.config.followSpan)
 
 // 设置 moment 语言为中文
 moment.locale('zh-cn')
@@ -42,15 +49,15 @@ const props = defineProps({
 })
 
 const type2text = {
-    expiredAndCompleted: '过往已完成（7天内）',
-    expiredAndNotCompleted: '过往未完成（7天内）',
+    expiredAndCompleted: '过往已完成',
+    expiredAndNotCompleted: '过往未完成',
     today: '今天',
     tomorrow: '明天',
     theDayAfterTomorrow: '后天',
-    follow: '后续日程（7天内）',
+    follow: '后续日程',
 }
 
-// 计算显示文本，为今天、明天和后天添加星期几
+// 计算显示文本
 const displayText = computed(() => {
     const baseText = type2text[props.type] || props.type
     
@@ -60,9 +67,14 @@ const displayText = computed(() => {
         return `${baseText} (${moment().add(1, 'day').format('dddd')})`
     } else if (props.type === 'theDayAfterTomorrow') {
         return `${baseText} (${moment().add(2, 'days').format('dddd')})`
+    } else if (props.type === 'expiredAndCompleted') {
+        return `${baseText} (${expiredAndCompletedSpan.value}天内)`
+    }else if (props.type === 'expiredAndNotCompleted') {
+        return `${baseText} (${expiredAndNotCompletedSpan.value}天内)`
+    }else {
+        return `${baseText} (${followSpan.value}天内)`
     }
-    
-    return baseText
+
 })
 
 // 根据类型计算样式类

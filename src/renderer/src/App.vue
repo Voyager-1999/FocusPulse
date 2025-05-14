@@ -31,7 +31,7 @@
         </div>
 
         <div class="nav-footer">
-          <el-button class="settings-btn" circle>
+          <el-button class="settings-btn" circle @click="showSettings = true">
             <el-icon><Setting /></el-icon>
           </el-button>
         </div>
@@ -41,6 +41,16 @@
       <main class="content">
         <RouterView />
       </main>
+
+      <!-- 设置对话框 -->
+      <el-dialog
+        v-model="showSettings"
+        title="设置"
+        width="50%"
+        :close-on-click-modal="false"
+      >
+        <setting />
+      </el-dialog>
     </div>
 </template>
   
@@ -49,15 +59,20 @@ import { RouterLink, RouterView } from 'vue-router'
 import { List, Timer, Calendar, Setting, View, Clock } from '@element-plus/icons-vue'
 import { useTodoListStore } from './store/todoList.store'
 import { useSortsStore } from './store/sorts.store' 
-import { onMounted } from 'vue'
+import { useConfigStore } from './store/config.store'
+import { onMounted, ref } from 'vue'
+import setting from './components/setting.vue'
 
 const TodoListStore = useTodoListStore()
 const sortsStore = useSortsStore()
+const configStore = useConfigStore()
+const showSettings = ref(false)
+
 onMounted(() => {
     TodoListStore.loadTodos()
     sortsStore.loadSorts()
+    configStore.loadConfig()
 })
-
 </script>
 
 <style scoped>
@@ -151,6 +166,7 @@ padding: 16px;
 border-top: 1px solid rgba(255, 255, 255, 0.1);
 display: flex;
 justify-content: center;
+margin-top: auto; /* 将footer推到底部 */
 }
 
 .settings-btn {

@@ -27,11 +27,19 @@ import { ref, computed } from 'vue'
 import editTodo from '../components/editTodo.vue'
 import recentTodoItem from '../components/recentTodoItem.vue'
 import { useTodoListStore } from '../store/todoList.store'
+import { useConfigStore } from '../store/config.store'
 import moment from 'moment'
 
 const quickInput = ref('')
 const showQuickEdit = ref(false)
 const todoListStore = useTodoListStore()
+const configStore = useConfigStore()
+
+
+let showChecked = computed(() => configStore.config.showChecked)
+let expiredAndCompletedSpan = computed(() => configStore.config.expiredAndCompletedSpan)
+let expiredAndNotCompletedSpan = computed(() => configStore.config.expiredAndNotCompletedSpan)
+let followSpan = computed(() => configStore.config.followSpan)
 
 function onQuickInputEnter() {
     if (quickInput.value.trim()) {
@@ -71,7 +79,12 @@ const computedStore = computed(() => {
                 notChecked.push(todo)
             }
         })
-        result.today = notChecked.concat(checked)
+        if(showChecked.value){  // 修改这里，使用 .value 访问计算属性的值
+            result.today = [...notChecked, ...checked]  // 使用展开运算符创建新数组
+        }
+        else{
+            result.today = notChecked
+        }
     }
     if(todoListStore.todoList[tomorrowDate]){
         let notChecked = []
@@ -84,7 +97,12 @@ const computedStore = computed(() => {
                 notChecked.push(todo)
             }
         })
-        result.tomorrow = notChecked.concat(checked)
+        if(showChecked.value){  // 修改这里，使用 .value 访问计算属性的值
+            result.tomorrow = [...notChecked, ...checked]  // 使用展开运算符创建新数组
+        }
+        else{
+            result.tomorrow = notChecked
+        }
     }
     if(todoListStore.todoList[theDayAfterTomorrowDate]){
         let notChecked = []
@@ -97,21 +115,33 @@ const computedStore = computed(() => {
                 notChecked.push(todo)
             }
         })
-        result.theDayAfterTomorrow = notChecked.concat(checked)
+        if(showChecked.value){  // 修改这里，使用 .value 访问计算属性的值
+            result.theDayAfterTomorrow = [...notChecked, ...checked]  // 使用展开运算符创建新数组
+        }
+        else{
+            result.theDayAfterTomorrow = notChecked
+        }
     }
 
     // Handle expired todos
     const todayMoment = moment()
-    const sevenDaysAgoMoment = moment().subtract(7, 'days')
 
-    for (let date = moment(sevenDaysAgoMoment); date.isBefore(todayMoment); date.add(1, 'day')){
+    for (let date = moment().subtract(expiredAndCompletedSpan.value, 'days'); date.isBefore(todayMoment); date.add(1, 'day')){
         let dateStr = date.format('YYYYMMDD')
         if(todoListStore.todoList[dateStr]){
             todoListStore.todoList[dateStr].forEach(todo => {
                 if(todo.checked){
                     result.expiredAndCompleted.push(todo)
                 }
-                else{
+            })
+        }
+    }    
+
+    for (let date = moment().subtract(expiredAndNotCompletedSpan.value, 'days'); date.isBefore(todayMoment); date.add(1, 'day')){
+        let dateStr = date.format('YYYYMMDD')
+        if(todoListStore.todoList[dateStr]){
+            todoListStore.todoList[dateStr].forEach(todo => {
+                if(!todo.checked){
                     result.expiredAndNotCompleted.push(todo)
                 }
             })
@@ -120,7 +150,7 @@ const computedStore = computed(() => {
 
     // Handle follow-up todos
     const threeDayAfterMoment = moment().add(3,'day')
-    const nineDaysAfterMoment = moment().add(9, 'days')
+    const nineDaysAfterMoment = moment().add(3+followSpan.value, 'days')
 
     let notChecked = []
     let checked = []
@@ -137,7 +167,12 @@ const computedStore = computed(() => {
             })
         }
     }
-    result.follow = notChecked.concat(checked)
+    if(showChecked.value){  // 修改这里，使用 .value 访问计算属性的值
+        result.follow = [...notChecked, ...checked]  // 使用展开运算符创建新数组
+    }
+    else{
+        result.follow = notChecked
+    }
 
     return result
 })

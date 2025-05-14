@@ -15,7 +15,8 @@ function createWindow() {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
       nodeIntegration: true,
-      contextIsolation: true
+      contextIsolation: true,
+      permissions: ['geolocation']
     }
   })
 
@@ -35,6 +36,16 @@ function createWindow() {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  // 设置地理位置权限
+  mainWindow.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
+    const allowedPermissions = ['geolocation']
+    if (allowedPermissions.includes(permission)) {
+      callback(true) // 允许地理位置权限
+    } else {
+      callback(false)
+    }
+  })
 }
 
 // This method will be called when Electron has finished

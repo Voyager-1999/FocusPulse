@@ -46,6 +46,7 @@
     const TodoListStore = useTodoListStore()
     const showSubTodos = ref(true)
     const mainColor = computed(() => todo.sort?.color || '#409eff')
+    
 
     // 复选框切换待办完成状态
     const onCheckedChange = async (val) => {
