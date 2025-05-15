@@ -13,10 +13,6 @@
                 <el-icon><Sugar /></el-icon>
                 <span>番茄统计</span>
             </RouterLink>
-            <RouterLink :to="{ name: 'Report'}" class="nav-link">
-                <el-icon><TrendCharts /></el-icon>
-                <span>周报</span>
-            </RouterLink>
         </div>
         <div class="content">
             <RouterView/>
@@ -27,7 +23,7 @@
 
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import { Checked, List, Sugar, TrendCharts  } from '@element-plus/icons-vue';
+import { Checked, List, Sugar } from '@element-plus/icons-vue';
 
 </script>
 

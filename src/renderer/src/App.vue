@@ -66,7 +66,6 @@ const sortsStore = useSortsStore()
 const configStore = useConfigStore()
 const showSettings = ref(false)
 
-// 将数据转换为响应式
 const cityData = ref(null)
 const weatherData = ref(null)
 let AMapInstance = null
@@ -98,7 +97,7 @@ function loadCityInfo() {
     let citySearch = new AMapInstance.CitySearch()
     citySearch.getLocalCity(function (status, result) {
       if (status === 'complete' && result.info === 'OK') {
-        console.log('城市信息：', result)
+        // console.log('城市信息：', result)
         cityData.value = result
         // 获取到城市信息后加载天气
         loadWeatherInfo()
@@ -118,7 +117,7 @@ function loadWeatherInfo() {
         console.error('获取天气信息失败：', err)
         return
       }
-      console.log('天气信息：', data);
+      // console.log('天气信息：', data);
       weatherData.value = data
     });
   })
