@@ -3,7 +3,7 @@
       <!-- 导航区 - 固定在左侧 -->
       <nav class="navigation">
         <div class="nav-header">
-          <img src=".\assets\logo.png" alt="Logo" class="logo" />
+          <img src=".\\assets\\logo.png" alt="Logo" class="logo" />
           <h1 class="app-title">FocusPulse</h1>
         </div>
         
@@ -34,12 +34,14 @@
             <el-icon><Calendar /></el-icon>
             <span>课程表</span>
           </RouterLink>
-        </div>
-
-        <div class="nav-footer">
-          <el-button class="settings-btn" circle @click="showSettings = true">
-            <el-icon><Setting /></el-icon>
-          </el-button>
+          <RouterLink :to="{name: 'DataAnalysis'}" class="nav-link">
+            <el-icon><DataLine /></el-icon>
+            <span>数据分析</span>
+          </RouterLink>
+          <RouterLink :to="{name: 'User'}" class="nav-link">
+            <el-icon><User /></el-icon>
+            <span>我的</span>
+          </RouterLink>
         </div>
       </nav>
       
@@ -47,27 +49,16 @@
       <main class="content">
         <RouterView />
       </main>
-
-      <!-- 设置对话框 -->
-      <el-dialog
-        v-model="showSettings"
-        title="设置"
-        width="50%"
-        :close-on-click-modal="false"
-      >
-        <setting />
-      </el-dialog>
     </div>
 </template>
   
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import { List, Timer, Calendar, Setting, View, Clock } from '@element-plus/icons-vue'
+import { List, Timer, Calendar, View, Clock, DataLine, User } from '@element-plus/icons-vue'
 import { useTodoListStore } from './store/todoList.store'
 import { useSortsStore } from './store/sorts.store'
 import { useConfigStore } from './store/config.store'
 import { onMounted, onBeforeMount, ref } from 'vue'
-import setting from './components/setting.vue'
 import AMapLoader from '@amap/amap-jsapi-loader';
 
 const TodoListStore = useTodoListStore()
@@ -144,11 +135,21 @@ onMounted(() => {
 })
 </script>
 
+<style>
+html,
+body {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrollbars on html/body */
+}
+</style>
+
 <style scoped>
 /* 基础布局设置 */
 .app {
     display: flex;
-    height: 100vh;
+    height: 100%; /* Take full height from body */
     margin: 0;
     padding: 0;
 }
@@ -254,9 +255,10 @@ border-color: rgba(255, 255, 255, 0.3);
 .content {
     flex: 1;
     margin-left: 180px;
-    padding: 20px;
-    min-height: 100vh;
+    padding: 20px; 
+    height: 100%; /* Fill the allocated flex space vertically */
     box-sizing: border-box;
+    overflow-y: hidden; /* Ensure content itself does not scroll */
 }
 
 /* 响应式设计 */

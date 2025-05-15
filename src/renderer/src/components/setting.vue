@@ -1,5 +1,7 @@
 <template>
     <div class="setting">
+        <div class="header">
+        </div>
         <div class="todo-setting">
             <h2 class="title">待办事件设置</h2>
             <div>
@@ -94,8 +96,39 @@ const spanOptions = [
 
 
 <style scoped>
+.setting {
+    padding: 10px;
+}
+
+.header {
+    margin-bottom: 20px;
+}
+
+.back-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.back-btn .el-icon {
+    margin-right: 4px;
+}
+
 .title {
     font-size: medium;
     color: #84a98c;
+    margin: 5px;
+}
+
+.todo-setting {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.todo-setting > div {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 </style>

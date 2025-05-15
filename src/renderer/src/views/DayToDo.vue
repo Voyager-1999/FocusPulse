@@ -211,15 +211,19 @@
 
 <style scoped>
 .DayToDo {
-    padding: 20px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 40px); /* Subtract padding and any other spacing */
+    box-sizing: border-box;
 }
 
 .header {
-    margin-bottom: 20px;
     display: flex;
     flex-direction: column;
     gap: 0;
     align-items: stretch;
+    flex-shrink: 0;
 }
 
 .header-top {
@@ -300,7 +304,30 @@
 }
 
 .todo-list {
+    position: relative;
+    height: calc(100vh - 200px); /* Adjust this value based on your header height */
+    overflow-y: auto;
     margin-top: 20px;
+    padding-right: 4px;
+}
+
+/* Custom scrollbar styles */
+.todo-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.todo-list::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 2px;
+}
+
+.todo-list::-webkit-scrollbar-thumb {
+    background: #dcdfe6;
+    border-radius: 2px;
+}
+
+.todo-list::-webkit-scrollbar-thumb:hover {
+    background: #c0c4cc;
 }
 
 .todo-item {

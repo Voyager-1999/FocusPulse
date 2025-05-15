@@ -8,6 +8,7 @@ export default {
       return config;
     } else {
       let default_config = {
+        userName:'User', // 用户名
         firstTimeOpen: true, // 是否第一次打开
         lastDayOpened: moment().format("YYYY-MM-DD"), // 上次打开的日期
         showChecked: true, // 是否展示已完成

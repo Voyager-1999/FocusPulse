@@ -180,11 +180,54 @@ const computedStore = computed(() => {
 
 
 <style scoped>
+.recentToDo {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 40px);
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: stretch;
+    flex-shrink: 0;
+}
+
 .quick-input {
     width: 540px;
     height: 44px;
     font-size: 16px;
     margin-bottom: 8px;
     border-radius: 8px;
+}
+
+.main-container {
+    position: relative;
+    height: calc(100vh - 200px);
+    overflow-y: auto;
+    margin-top: 20px;
+    padding-right: 4px;
+}
+
+/* Custom scrollbar styles */
+.main-container::-webkit-scrollbar {
+    width: 4px;
+}
+
+.main-container::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 2px;
+}
+
+.main-container::-webkit-scrollbar-thumb {
+    background: #dcdfe6;
+    border-radius: 2px;
+}
+
+.main-container::-webkit-scrollbar-thumb:hover {
+    background: #c0c4cc;
 }
 </style>
