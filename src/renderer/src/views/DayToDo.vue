@@ -3,7 +3,7 @@
         <div class="header">
             <div class="header-top">
                 <div class="date-container">
-                    <el-date-picker
+                    <datePicker
                         v-model="selectedDate"
                         type="date"
                         placeholder="选择日期"
@@ -112,6 +112,7 @@
     import { ref, computed, onMounted } from 'vue'
     import todoItem from '../components/todoItem.vue'
     import addSort from '../components/addSort.vue'
+    import datePicker from '../components/datePicker.vue'
     import { 
         ArrowDown, 
         Plus, 

@@ -1,5 +1,5 @@
 <template>
-  <div class="edit-todo-root">
+  <div class="editTodo">
     <!-- 1. 类别选择 -->
     <div class="todo-sort-row">
       <div class="sort-ellipse" :style="{ background: selectedSort.color || '#dcdfe6', color: selectedSort.color ? '#fff' : '#606266' }">
@@ -32,17 +32,34 @@
     <el-input v-model="todoData.text" placeholder="输入待办内容" class="todo-text-input" />
     <!-- 3. desc输入框 -->
     <el-input v-model="todoData.desc" placeholder="添加描述" class="todo-desc-input" />
-    <!-- 4. 日期选择 -->
-    <div class="date-row">
-      <el-button :type="isToday ? 'primary' : 'default'" @click="setToday">今天</el-button>
-      <el-button :type="isTomorrow ? 'primary' : 'default'" @click="setTomorrow">明天</el-button>
-      <el-date-picker
-        v-model="datePickerValue"
+    <!-- 4. 开始日期选择 -->
+    <div class="startDate-row">
+      <span>开始日期：</span>
+      <el-button :type="start_isToday ? 'primary' : 'default'" @click="setStartToday">今天</el-button>
+      <el-button :type="start_isTomorrow ? 'primary' : 'default'" @click="setStartTomorrow">明天</el-button>
+      <datePicker
+        v-model="todoData.startDate"
         type="date"
         placeholder="选择日期"
         format="YYYY-MM-DD"
         value-format="YYYYMMDD"
-        @change="onDateChange"
+        @change="onStartDateChange"
+        :teleported="false"
+        class="date-picker"
+      />
+    </div>
+    <!-- 5. 结束日期选择 -->
+    <div class="Date-row">
+      <span>结束日期：</span>
+      <el-button :type="due_isToday ? 'primary' : 'default'" @click="setdueToday">今天</el-button>
+      <el-button :type="due_isTomorrow ? 'primary' : 'default'" @click="setdueTomorrow">明天</el-button>
+      <datePicker
+        v-model="todoData.dueDate"
+        type="date"
+        placeholder="选择日期"
+        format="YYYY-MM-DD"
+        value-format="YYYYMMDD"
+        @change="ondueDateChange"
         :teleported="false"
         class="date-picker"
       />
@@ -57,7 +74,7 @@
         </el-button>
       </div>
     </div>
-    <el-input v-model="subInput" placeholder="添加子任务" @keyup.enter="addSubTodo" class="subtodo-input" />
+    <el-input v-model="subInput" placeholder="添加子任务,按下回车新建" @keyup.enter="addSubTodo" class="subtodo-input" />
     <!-- 6. 重复类型按钮（预留） -->
     <div class="repeat-row">
       <!-- 预留 -->
@@ -74,6 +91,7 @@ import { useSortsStore } from '../store/sorts.store'
 import addSort from './addSort.vue'
 import { ArrowDown, Plus, Delete } from '@element-plus/icons-vue'
 import moment from 'moment'
+import datePicker from './datePicker.vue'
 
 const props = defineProps({
   todo: Object, // 传入则为编辑，否则新建
@@ -92,7 +110,7 @@ const todoData = ref({
   text: '',
   desc: '',
   startDate: moment().format('YYYYMMDD'),
-  dueDate: '',
+  dueDate: moment().format('YYYYMMDD'),
   checked: false,
   subTodos: [],
   repeat: null,
@@ -100,15 +118,15 @@ const todoData = ref({
 })
 
 const selectedSort = computed(() => todoData.value.sort || { name: '未分类', color: '' })
-const datePickerValue = ref(todoData.value.startDate)
 
-const isToday = computed(() => todoData.value.startDate === moment().format('YYYYMMDD'))
-const isTomorrow = computed(() => todoData.value.startDate === moment().add(1, 'day').format('YYYYMMDD'))
+const start_isToday = computed(() => todoData.value.startDate === moment().format('YYYYMMDD'))
+const start_isTomorrow = computed(() => todoData.value.startDate === moment().add(1, 'day').format('YYYYMMDD'))
+const due_isToday = computed(() => todoData.value.dueDate === moment().format('YYYYMMDD'))
+const due_isTomorrow = computed(() => todoData.value.dueDate === moment().add(1, 'day').format('YYYYMMDD'))
 
 onMounted(() => {
   if (props.todo) {
     todoData.value = JSON.parse(JSON.stringify(props.todo))
-    datePickerValue.value = todoData.value.startDate
   } else if (props.initialText) {
     todoData.value.text = props.initialText
   }
@@ -118,16 +136,25 @@ function selectSort(sort) {
   todoData.value.sort = sort
   showSortPopover.value = false
 }
-function setToday() {
+function setStartToday() {
   todoData.value.startDate = moment().format('YYYYMMDD')
-  datePickerValue.value = todoData.value.startDate
 }
-function setTomorrow() {
+function setStartTomorrow() {
   todoData.value.startDate = moment().add(1, 'day').format('YYYYMMDD')
-  datePickerValue.value = todoData.value.startDate
 }
-function onDateChange(val) {
+
+function setdueToday() {
+  todoData.value.dueDate = moment().format('YYYYMMDD')
+}
+function setdueTomorrow() {
+  todoData.value.dueDate = moment().add(1, 'day').format('YYYYMMDD')
+}
+function onStartDateChange(val) {
   todoData.value.startDate = val
+}
+
+function ondueDateChange(val) {
+  todoData.value.dueDate = val
 }
 function addSubTodo() {
   if (subInput.value.trim()) {
@@ -140,7 +167,7 @@ function deleteSubTodo(idx) {
 }
 async function saveTodo() {
   if (!todoData.value.text) return
-  console.log(todoData.value)
+  // console.log(todoData.value)
   if (props.todo) {
     await TodoListStore.updateTodo(props.todo, todoData.value)
   } else {
@@ -157,7 +184,7 @@ watch(
         text: val,
         desc: '',
         startDate: moment().format('YYYYMMDD'),
-        dueDate: '',
+        dueDate: moment().format('YYYYMMDD'),
         checked: false,
         subTodos: [],
         repeat: null,
@@ -169,7 +196,7 @@ watch(
 </script>
 
 <style scoped>
-.edit-todo-root {
+.editTodo {
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.08);
@@ -245,7 +272,7 @@ watch(
 .todo-desc-input {
   font-size: 14px;
 }
-.date-row {
+.startDate-row {
   display: flex;
   align-items: center;
   gap: 8px;
