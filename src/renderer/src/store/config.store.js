@@ -3,8 +3,11 @@ import configRepository from "../repositories/configRepository";
 
 export const useConfigStore = defineStore('config', {
     actions:{
-        loadConfig() {
-            this.config = configRepository.load();
+        async loadConfig() {
+            return new Promise((resolve) => {
+                this.config = configRepository.load();
+                resolve();
+            });
         },
 
         updateConfig(key, value){

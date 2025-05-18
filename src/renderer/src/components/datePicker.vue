@@ -9,7 +9,7 @@
         >
           <div :class="getDateClass(dateCell)">
             <span class="solar-text">{{ dateCell.date.getDate() }}</span>
-            <span class="lunar-tex">{{ getLunarDay(dateCell.date) }}</span>
+            <span class="lunar-text">{{ getLunarDay(dateCell.date) }}</span>
             <span v-if="isLegalHoliday(dateCell.date)" class="holiday-mark">休</span>
           </div>
         </el-tooltip>
@@ -17,12 +17,13 @@
     </el-date-picker>
   </template>
   
-  <script setup>
+<script setup>
   import { ref, watch } from 'vue'
   import { JieQi, Solar } from 'lunar-javascript'
   import { PropTypes } from '../utils/PropTypes'
   import { isEmpty } from '../utils/is'
   import { datePickerProps } from 'element-plus'
+  import axios from 'axios'
   
   // 带农历日期显示的选择组件
   defineOptions({ name: 'datePicker' })
@@ -90,9 +91,18 @@
    * @param {Date} date 日期对象
    */
   const isLegalHoliday = (date) => {
-    const month = date.getMonth() + 1
-    const day = date.getDate()
-    const key = `${month}-${day}`
+    const year = date.getFullYear()
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const day = date.getDate().toString().padStart(2, '0')
+    const key = `${year}-${month}-${day}`
+    // // 将 key 拼接到 URL 中
+    // axios.get(`http://api.haoshenqi.top/holiday?date=${key}`)
+    // .then(response => {
+    //     console.log(response.data); // 假设你需要处理响应数据
+    // })
+    // .catch(error => {
+    //     console.error('There was an error making the request!', error);
+    // });
     return legalHolidays[key] || false
   }
   
@@ -237,8 +247,8 @@
   
     .lunar-text {
       white-space: nowrap;
-      font-size: 12px;
-      color: var(--el-text-color-secondary, #909399);
+      font-size: 10px;
+      color: var(--el-text-color-secondary, #82868b);
     }
   
     .holiday-mark {

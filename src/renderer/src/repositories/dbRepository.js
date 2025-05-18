@@ -1,11 +1,11 @@
 export default {
     open() {
-        let req = indexedDB.open('FocusPulse', 8); // 打开指定版本的数据库，返回值为IDBOpenDBRequest对象
-        req.onupgradeneeded = function (event) { // 当数据库不存在或版本号发生变化时触发
-            let db = event.target.result; // event.target.result 是 IDBDatabase 类型，代表打开的数据库实例
+        let req = indexedDB.open('FocusPulse', 9); // 增加版本号以触发数据库升级
+        req.onupgradeneeded = function (event) {
+            let db = event.target.result;
             if (!db.objectStoreNames.contains("todo_lists")) {
-                // 使用日期作为主键
-                db.createObjectStore('todo_lists', { keyPath: 'date', autoIncrement: false});
+                // 使用listId作为主键
+                db.createObjectStore('todo_lists', { keyPath: 'listId', autoIncrement: false});
             }
 
             if (!db.objectStoreNames.contains("repeating_events")) {

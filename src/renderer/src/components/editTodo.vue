@@ -76,7 +76,7 @@
     </div>
     <el-input v-model="subInput" placeholder="添加子任务,按下回车新建" @keyup.enter="addSubTodo" class="subtodo-input" />
     <!-- 6. 重复类型按钮（预留） -->
-    <div class="repeat-row">
+    <div class="repeatingEvent-row">
       <!-- 预留 -->
     </div>
     <!-- 7. 保存按钮 -->
@@ -90,7 +90,7 @@ import { useTodoListStore } from '../store/todoList.store'
 import { useSortsStore } from '../store/sorts.store'
 import addSort from './addSort.vue'
 import { ArrowDown, Plus, Delete } from '@element-plus/icons-vue'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import datePicker from './datePicker.vue'
 
 const props = defineProps({
@@ -109,20 +109,23 @@ const subInput = ref('')
 const todoData = ref({
   text: '',
   desc: '',
-  startDate: moment().format('YYYYMMDD'),
-  dueDate: moment().format('YYYYMMDD'),
+  startDate: dayjs().format('YYYYMMDD'),
+  dueDate: dayjs().format('YYYYMMDD'),
+  listId:dayjs().format('YYYYMMDD'),
   checked: false,
   subTodos: [],
-  repeat: null,
-  sort: null
+  repeatingEvent: null,
+  sort: null,
+  alarm: false,
+  time: null
 })
 
 const selectedSort = computed(() => todoData.value.sort || { name: '未分类', color: '' })
 
-const start_isToday = computed(() => todoData.value.startDate === moment().format('YYYYMMDD'))
-const start_isTomorrow = computed(() => todoData.value.startDate === moment().add(1, 'day').format('YYYYMMDD'))
-const due_isToday = computed(() => todoData.value.dueDate === moment().format('YYYYMMDD'))
-const due_isTomorrow = computed(() => todoData.value.dueDate === moment().add(1, 'day').format('YYYYMMDD'))
+const start_isToday = computed(() => todoData.value.startDate === dayjs().format('YYYYMMDD'))
+const start_isTomorrow = computed(() => todoData.value.startDate === dayjs().add(1, 'day').format('YYYYMMDD'))
+const due_isToday = computed(() => todoData.value.dueDate === dayjs().format('YYYYMMDD'))
+const due_isTomorrow = computed(() => todoData.value.dueDate === dayjs().add(1, 'day').format('YYYYMMDD'))
 
 onMounted(() => {
   if (props.todo) {
@@ -137,20 +140,23 @@ function selectSort(sort) {
   showSortPopover.value = false
 }
 function setStartToday() {
-  todoData.value.startDate = moment().format('YYYYMMDD')
+  todoData.value.startDate = dayjs().format('YYYYMMDD')
+  todoData.value.listId = todoData.value.startDate
 }
 function setStartTomorrow() {
-  todoData.value.startDate = moment().add(1, 'day').format('YYYYMMDD')
+  todoData.value.startDate = dayjs().add(1, 'day').format('YYYYMMDD')
+  todoData.value.listId = todoData.value.startDate
 }
 
 function setdueToday() {
-  todoData.value.dueDate = moment().format('YYYYMMDD')
+  todoData.value.dueDate = dayjs().format('YYYYMMDD')
 }
 function setdueTomorrow() {
-  todoData.value.dueDate = moment().add(1, 'day').format('YYYYMMDD')
+  todoData.value.dueDate = dayjs().add(1, 'day').format('YYYYMMDD')
 }
 function onStartDateChange(val) {
   todoData.value.startDate = val
+  todoData.value.listId = todoData.value.startDate
 }
 
 function ondueDateChange(val) {
@@ -166,6 +172,7 @@ function deleteSubTodo(idx) {
   todoData.value.subTodos.splice(idx, 1)
 }
 async function saveTodo() {
+  console.log(todoData.value)
   if (!todoData.value.text) return
   // console.log(todoData.value)
   if (props.todo) {
@@ -183,11 +190,12 @@ watch(
       todoData.value = {
         text: val,
         desc: '',
-        startDate: moment().format('YYYYMMDD'),
-        dueDate: moment().format('YYYYMMDD'),
+        startDate: dayjs().format('YYYYMMDD'),
+        dueDate: dayjs().format('YYYYMMDD'),
+        listId: dayjs().format('YYYYMMDD'),
         checked: false,
         subTodos: [],
-        repeat: null,
+        repeatingEvent: null,
         sort: null
       }
     }
@@ -200,36 +208,43 @@ watch(
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  padding: 20px;
+  padding: 16px;
   width: 340px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
+
 .todo-sort-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
+
 .sort-ellipse {
-  min-width: 60px;
-  padding: 4px 16px;
-  border-radius: 16px/50%;
+  min-width: 50px;
+  padding: 2px 12px;
+  border-radius: 12px/50%;
   background: #dcdfe6;
   color: #606266;
-  font-size: 14px;
+  font-size: 13px;
   text-align: center;
 }
+
 .sort-pop-btn {
   background: #f5f7fa;
+  padding: 4px;
+  font-size: 12px;
 }
+
 .sort-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   align-items: stretch;
 }
+
 .sort-item {
   width: 100% !important;
   min-width: 0 !important;
@@ -237,21 +252,22 @@ watch(
   margin: 0 !important;
   text-align: left !important;
   justify-content: flex-start !important;
-  border-radius: 8px !important;
-  padding-left: 16px !important;
-  padding-right: 16px !important;
-  height: 40px !important;
-  line-height: 40px !important;
+  border-radius: 6px !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  height: 32px !important;
+  line-height: 32px !important;
   display: flex !important;
   align-items: center !important;
   outline: none !important;
   box-shadow: none !important;
   border-width: 1px !important;
-  font-size: 16px !important;
+  font-size: 14px !important;
   font-family: inherit !important;
   background: #fff !important;
   border-color: #dcdfe6 !important;
 }
+
 .sort-item .el-button__text {
   width: 100% !important;
   display: flex !important;
@@ -259,55 +275,86 @@ watch(
   justify-content: flex-start !important;
   padding: 0 !important;
   margin: 0 !important;
-  font-size: 16px !important;
+  font-size: 14px !important;
   font-family: inherit !important;
 }
+
 .add-sort-btn {
   color: #409eff;
   border: 1px dashed #409eff;
+  height: 32px !important;
+  line-height: 32px !important;
+  font-size: 14px !important;
 }
+
 .todo-text-input {
-  font-size: 16px;
+  font-size: 15px;
 }
+
 .todo-desc-input {
-  font-size: 14px;
+  font-size: 13px;
 }
-.startDate-row {
+
+.startDate-row, .Date-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  font-size: 13px;
+
+  span {
+    min-width: 56px;
+    white-space: nowrap;
+  }
 }
+
+.startDate-row .el-button, .Date-row .el-button {
+  padding: 4px 8px;
+  font-size: 12px;
+  height: 24px;
+  line-height: 1;
+}
+
 .date-picker {
-  width: 120px;
+  width: 100px;
 }
+
 .subtodo-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
   margin-bottom: 4px;
 }
+
 .subtodo-item {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 13px;
 }
+
 .subtodo-done {
   text-decoration: line-through;
   color: #bfbfbf;
 }
+
 .subtodo-input {
-  font-size: 14px;
+  font-size: 13px;
 }
+
 .save-btn {
   width: 100%;
-  margin-top: 8px;
+  margin-top: 4px;
+  height: 32px;
+  font-size: 14px;
 }
+
 .subtodo-delete-btn {
-  margin-left: 8px;
+  margin-left: 4px;
   color: #f56c6c;
-  padding: 0 4px;
+  padding: 0 2px;
+  font-size: 12px;
 }
+
 .subtodo-delete-btn:hover {
   color: #ff0000;
 }

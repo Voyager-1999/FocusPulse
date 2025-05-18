@@ -1,5 +1,7 @@
 <template>
     <div class="app">
+      <!-- 启动动画 -->
+      <splash-screen ref="splashRef"></splash-screen>
       <!-- 导航区 - 固定在左侧 -->
       <nav class="navigation">
         <div class="nav-header">
@@ -60,15 +62,21 @@ import { useSortsStore } from './store/sorts.store'
 import { useConfigStore } from './store/config.store'
 import { onMounted, onBeforeMount, ref } from 'vue'
 import AMapLoader from '@amap/amap-jsapi-loader';
+import dayjs from 'dayjs'
+import isElectron from "is-electron";
+import notifications from './utils/notifications'
+import taskHelper from './utils/tasksHelper'
+import SplashScreen from './components/splashScreen.vue'
+
 
 const TodoListStore = useTodoListStore()
 const sortsStore = useSortsStore()
 const configStore = useConfigStore()
-const showSettings = ref(false)
 
 const cityData = ref(null)
 const weatherData = ref(null)
 let AMapInstance = null
+const splashRef = ref(null)
 
 // 加载高德地图
 function loadAMap(){
@@ -123,14 +131,155 @@ function loadWeatherInfo() {
   })
 }
 
+function hideSplash() {
+  if (isElectron()) {
+    if (window.electron?.isWindowsVisible()) {
+      splashRef.value?.hideSplash()
+    }
+  } else {
+    splashRef.value?.hideSplash()
+  }
+}
+
+function refreshTodayNotifications() { // 刷新今日通知
+  notifications.refreshDayNotifications(dayjs().format("YYYYMMDD"));
+}
+function resetAppOnDayChange() { // 日期变动时刷新app
+  const now = dayjs()
+  const tomorrowStart = now.add(1, 'day').startOf('date')
+  const duration = tomorrowStart.diff(now)
+
+  setTimeout(async () => {
+    // 如果当前是electron环境，并且窗口不是可见的，则刷新页面
+    if (isElectron && !window.electron?.ipcRenderer.sendSync("is-windows-visible")) {
+      window.location.reload()
+    }
+    refreshTodayNotifications() // 刷新今日通知
+    resetAppOnDayChange() // 递归调用，设置下一个重置
+  }, duration)
+}
+
+function showInitialNotification() { // 展示应用首次打开时通知
+  if (!(configStore.config.notificationOnStartup && !configStore.config.firstTimeOpen)) return;
+  
+  setTimeout(() => {
+    const notification = new Notification("WeekToDo", {
+      body: initialNotificationText(),
+      icon: "/favicon.ico",
+      silent: true,
+    });
+
+    notification.onclick = () => {
+      if (isElectron) {
+        window.electronAPI?.send("show-current-window");
+      }
+      setTimeout(() => {
+        const splashScreen = document.getElementById("splashScreen");
+        if (splashScreen) {
+          splashScreen.classList.add("hiddenSplashScreen");
+        }
+      }, 3000);
+    };
+
+    notifications.playNotificationSound(configStore.config.notificationSound);
+  }, 2000);
+}
+
+function initialNotificationText() { // 通知文本
+  let yesterdayTasks = TodoListStore.todoLists[dayjs().subtract(1, "d").format("YYYYMMDD")];
+  let todayTasks = TodoListStore.todoLists[dayjs().format("YYYYMMDD")];
+
+  let yesterayPendingTasksCount = taskHelper.pendingTasksCount(yesterdayTasks);
+  let todayPendingTasksCount = taskHelper.pendingTasksCount(todayTasks);
+
+  if (yesterayPendingTasksCount == 0 && todayPendingTasksCount == 0) {
+    return `今天还没有没完成事件`;
+  } else if (yesterayPendingTasksCount == 0) {
+    return `今天有${todayPendingTasksCount}个未完成事件`;
+  } else if (todayPendingTasksCount == 0) {
+    return `昨天有${yesterayPendingTasksCount}个未完成事件`;
+  } else {
+    return `昨天有${yesterayPendingTasksCount}个未完成事件，今天有${todayPendingTasksCount}个未完成事件`;
+  }
+}
+
+async function moveOldTasksToToday() {
+    try {
+        const todayListId = dayjs().format("YYYYMMDD");
+        const lastDayOpened = configStore.config.lastDayOpened || dayjs().subtract(7, 'day').format("YYYYMMDD");
+        const daysBefore = dayjs().diff(dayjs(lastDayOpened), "days");
+        
+        // 如果今天已经打开过，则检查过去3天的待办
+        const daysToCheck = daysBefore === 0 ? 3 : daysBefore;
+        
+        for (let i = 1; i <= daysToCheck; i++) {
+            const listId = dayjs().subtract(i, "d").format("YYYYMMDD");
+            // 移动未完成的待办事项到今天
+            await TodoListStore.moveUndoneItems(listId, todayListId);
+        }
+
+        // 如果启用了自动重排序，则对今天的待办进行重排序
+        // if (configStore.config.autoReorderTasks) {
+        //     // TODO: 实现重排序逻辑
+        //     // 这里需要实现 tasksHelper.reorderTasksList 的等效功能
+        // }
+
+        return "done!";
+    } catch (error) {
+        console.error('移动旧待办失败:', error);
+        throw error;
+    }
+}
+
+async function methodsAfterInitialLoad() {
+    try {
+        if (configStore.config.moveOldTasks) {
+            await moveOldTasksToToday();
+        }
+        
+        // 刷新今日通知
+        refreshTodayNotifications();
+        
+        // 更新最后打开日期
+        configStore.updateConfig('lastDayOpened', dayjs().format("YYYYMMDD"));
+        
+        // 在Electron环境中显示初始通知
+        if (isElectron()) {
+            showInitialNotification();
+        }
+    } catch (error) {
+        console.error('初始化后处理失败:', error);
+    }
+}
+
 onBeforeMount(() => {
   loadAMap() // 初始化时加载地图
 })
 
-onMounted(() => {
-    TodoListStore.loadTodos()
-    sortsStore.loadSorts()
-    configStore.loadConfig()
+onMounted(async () => {
+    try {
+        console.log('开始加载数据...')
+        // 等待所有数据加载完成
+        await Promise.all([
+            TodoListStore.loadTodos().then(() => console.log('待办事项加载完成')),
+            sortsStore.loadSorts().then(() => console.log('分类加载完成')),
+            configStore.loadConfig().then(() => console.log('配置加载完成'))
+        ])
+        
+        console.log('所有数据加载完成，准备隐藏启动画面')
+        // 所有数据加载完成后，延迟2秒隐藏启动画面
+        setTimeout(() => {
+            console.log('执行隐藏启动画面')
+            hideSplash()
+        }, 2000)
+
+        // 在所有数据加载完成后执行后续操作
+        await methodsAfterInitialLoad()
+    } catch (error) {
+        console.error('数据加载失败:', error)
+    }
+    
+    resetAppOnDayChange() // 设置定时器刷新软件
 })
 </script>
 

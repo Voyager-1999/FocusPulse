@@ -4,10 +4,13 @@ import sortsRepository from '../repositories/sortsRepository'
 export const useSortsStore = defineStore('sortsStore', {
     actions: {
         // 初始化加载sorts和sorts_colors
-        loadSorts() {
-            const sortsStore = sortsRepository.load();
-            this.sorts = sortsStore.sorts;
-            this.sorts_colors = sortsStore.sorts_colors;
+        async loadSorts() {
+            return new Promise((resolve) => {
+                const sortsStore = sortsRepository.load();
+                this.sorts = sortsStore.sorts;
+                this.sorts_colors = sortsStore.sorts_colors;
+                resolve();
+            });
         },
 
         // 添加新的sort

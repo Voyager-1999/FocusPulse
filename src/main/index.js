@@ -84,6 +84,7 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+  ipcMain.on('is-windows-visible',isWindowsVisible)
 
   createWindow()
 
@@ -105,4 +106,8 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-
+function isWindowsVisible(event) {
+  const webContents = event.sender;
+  const win = BrowserWindow.fromWebContents(webContents);
+  event.returnValue = win.isVisible();
+}
