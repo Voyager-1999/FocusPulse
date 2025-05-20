@@ -1,7 +1,7 @@
 <template>
   <div class="editTodo">
-    <!-- 1. 类别选择 -->
-    <div class="todo-sort-row">
+    <!-- 1. 顶部 -->
+    <div class="header">
       <div class="sort-ellipse" :style="{ background: selectedSort.color || '#dcdfe6', color: selectedSort.color ? '#fff' : '#606266' }">
         {{ selectedSort.name || '未分类' }}
       </div>
@@ -27,6 +27,20 @@
       <el-dialog v-model="showAddSort" :show-close="false" width="auto" align-center>
         <addSort @close="showAddSort = false" />
       </el-dialog>
+      <div class="time">
+        <timePicker
+          :time="todoData.time"
+          @timeSelected="onTimeSelected"
+        />
+      </div>
+      <div class="alarm">
+        <i
+          class="header-menu-icons"
+          :class="{ 'bi-bell': !todoData.alarm, 'bi-bell-fill': todoData.alarm }"
+          @click="toggleAlarm"
+          title="提醒"
+        ></i>
+      </div>
     </div>
     <!-- 2. text输入框 -->
     <el-input v-model="todoData.text" placeholder="输入待办内容" class="todo-text-input" />
@@ -89,9 +103,11 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useTodoListStore } from '../store/todoList.store'
 import { useSortsStore } from '../store/sorts.store'
 import addSort from './addSort.vue'
+import timePicker from './timePicker.vue'
 import { ArrowDown, Plus, Delete } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import datePicker from './datePicker.vue'
+import notifications from '../utils/notifications'
 
 const props = defineProps({
   todo: Object, // 传入则为编辑，否则新建
@@ -180,7 +196,19 @@ async function saveTodo() {
   } else {
     await TodoListStore.addTodo(todoData.value)
   }
+  if ( todoData.value.time && todoData.value.alarm ){
+    notifications.refreshDayNotifications(todoData.value.listId)
+  }
   emit('saved', todoData.value)
+}
+
+function onTimeSelected(time) {
+  todoData.value.time = time
+  todoData.value.alarm = !!time
+}
+
+function toggleAlarm() {
+  todoData.value.alarm = !todoData.value.alarm
 }
 
 watch(
@@ -196,7 +224,9 @@ watch(
         checked: false,
         subTodos: [],
         repeatingEvent: null,
-        sort: null
+        sort: null,
+        alarm: false,
+        time: null
       }
     }
   }
@@ -216,7 +246,7 @@ watch(
   gap: 12px;
 }
 
-.todo-sort-row {
+.header {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -357,5 +387,46 @@ watch(
 
 .subtodo-delete-btn:hover {
   color: #ff0000;
+}
+
+.time {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.alarm {
+  display: flex;
+  align-items: center;
+}
+
+.header-menu-icons {
+  font-size: 1.1rem;
+  border-radius: 5px;
+  padding: 8px;
+  color: #5c5c5c;
+  cursor: pointer;
+}
+
+.header-menu-icons:hover {
+  color: black;
+  background-color: #f4f4f4;
+}
+
+.header-menu-icons:active {
+  background-color: #e9e9e9;
+}
+
+.dark-theme .header-menu-icons {
+  color: #ababab;
+}
+
+.dark-theme .header-menu-icons:hover {
+  color: white;
+  background-color: #303940;
+}
+
+.dark-theme .header-menu-icons:active {
+  background-color: #354048;
 }
 </style>

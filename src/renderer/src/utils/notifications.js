@@ -1,18 +1,24 @@
 import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+import localeData from 'dayjs/plugin/localeData'
 import { useNotificationsStore } from '../store/notifications.store'
 import { useTodoListStore } from '../store/todoList.store'
 import { useConfigStore } from '../store/config.store'
 
+// 配置 dayjs
+dayjs.extend(localeData)
+dayjs.locale('zh-cn')
+
 export default {
   refreshDayNotifications(todoListId) {
+    if (todoListId !== dayjs().format("YYYYMMDD")) return
+    
     const todoListStore = useTodoListStore()
     const configStore = useConfigStore()
     const notificationsStore = useNotificationsStore()
     
     let todoList = todoListStore.todoList[todoListId]
     const notificationSound = configStore.config.notificationSound
-    
-    if (todoListId !== dayjs().format("YYYYMMDD")) return
 
     notificationsStore.notifications.forEach((notification) => {
       clearTimeout(notification)
@@ -38,7 +44,7 @@ export default {
 
     const alertTimeOut = setTimeout(
       () => {
-        this.createNotification(dayjs(todoTime, "HH:mm").format("LT"), todoText, notificationSound)
+        this.createNotification(targetTime.format("HH:mm"), todoText, notificationSound)
       },
       duration
     )
@@ -47,46 +53,48 @@ export default {
   },
 
   createNotification(header, body, notificationSound) {
-    new Notification(header, {
+    window.electron.createNotification({
+      title: header,
       body: body,
-      icon: "/favicon.ico",
-      silent: true,
+      silent: true
     })
     this.playNotificationSound(notificationSound)
   },
 
   playNotificationSound(notificationSound) {
-    let sound
+    if (notificationSound === "none") return
+
+    let soundName
     switch (notificationSound) {
       case "pop":
-        sound = new Audio("sounds/pop-alert.ogg")
+        soundName = "pop-alert.wav"
         break
       case "positive":
-        sound = new Audio("sounds/positive.ogg")
+        soundName = "positive.wav"
         break
       case "bell":
-        sound = new Audio("sounds/loud-bell.ogg")
+        soundName = "loud-bell.wav"
         break
       case "soft":
-        sound = new Audio("sounds/soft.ogg")
+        soundName = "soft.wav"
         break
       case "tiny":
-        sound = new Audio("sounds/tiny.ogg")
+        soundName = "tiny.wav"
         break
       case "piano":
-        sound = new Audio("sounds/piano.ogg")
+        soundName = "piano.wav"
         break
       case "soft-bell":
-        sound = new Audio("sounds/soft-bell.ogg")
+        soundName = "soft-bell.wav"
         break
       case "metal":
-        sound = new Audio("sounds/metal-gear.ogg")
+        soundName = "metal-gear.wav"
         break
-      case "none":
-        return
     }
-    sound.addEventListener("canplaythrough", () => {
-      sound.play()
-    })
+
+    if (soundName) {
+      console.log('Playing notification sound:', soundName)
+      window.electron.playSound(soundName)
+    }
   },
 }

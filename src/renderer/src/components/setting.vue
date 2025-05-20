@@ -54,6 +54,44 @@
                     />
                 </el-select>
             </div>
+            <div>
+                <span>自动移动旧任务：</span>
+                <el-switch
+                    v-model="config.moveOldTodos"
+                    size="small"
+                    @change="configStore.updateConfig('moveOldTodos', config.moveOldTodos)"
+                ></el-switch>
+            </div>
+            <div>
+                <span>在启动时通知：</span>
+                <el-switch
+                    v-model="config.notificationOnStartup"
+                    size="small"
+                    @change="configStore.updateConfig('notificationOnStartup', config.notificationOnStartup)"
+                ></el-switch>
+            </div>
+            <!-- <div>
+                <span>通知显示器：</span>
+                <el-switch
+                    v-model="config.notificationIndicator"
+                    size="small"
+                    @change="configStore.updateConfig('notificationIndicator', config.notificationIndicator)"
+                ></el-switch>
+            </div> -->
+            <div>
+                <span>通知声音：</span>
+                <el-select v-model="config.notificationSound" 
+                            style="width: 100px" size="small" 
+                            @change="onSoundsChange">
+                    <el-option
+                        v-for="item in soundsOptions"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                        size="small"
+                    />
+                </el-select>
+            </div>
         </div>
     </div>
 </template>
@@ -61,37 +99,37 @@
 
 <script setup>
 import { useConfigStore } from '../store/config.store';
+import notifications from '../utils/notifications';
+import dayjs from 'dayjs';
 
 const configStore = useConfigStore()
 const { config } = configStore
 
 const spanOptions = [
-    {
-        label: '3天',
-        value: 3,
-    },
-    {
-        label: '5天',
-        value: 5,
-    },
-    {
-        label: '7天',
-        value: 7,
-    },
-    {
-        label: '10天',
-        value: 10,
-    },
-    {
-        label: '15天',
-        value: 15,
-    },
-    {
-        label: '30天',
-        value: 30,
-    },
+    { label: '3天', value: 3 },
+    { label: '5天', value: 5 },
+    { label: '7天', value: 7 },
+    { label: '10天', value: 10 },
+    { label: '15天', value: 15 },
+    { label: '30天', value: 30 },
 ]
 
+const soundsOptions = [
+    { label: 'None', value: 'none' },
+    { label: 'Pop', value: 'pop' },
+    { label: 'Bell', value: 'bell' },
+    { label: 'Soft Bell', value: 'soft-bell' },
+    { label: 'Soft', value: 'soft' },
+    { label: 'Tiny', value: 'tiny' },
+    { label: 'Piano', value: 'piano' },
+    { label: 'Positive', value: 'positive' },
+    { label: 'Metal', value: 'metal' },
+]
+
+function onSoundsChange(){
+    configStore.updateConfig('notificationSound', config.notificationSound) // 更新配置
+    notifications.refreshDayNotifications(dayjs().format('YYYYMMDD')) // 刷新今天的通知
+}
 </script>
 
 

@@ -91,7 +91,7 @@
             </div>
             <div v-else>
                 <div v-for="todo in uncompletedTodos" :key="todo.id" class="todo-item">
-                    <todoItem :todo="todo" :selectedDate="selectedDate"/>
+                    <todoItem :todo="todo"/>
                 </div>
                 <div v-if="showChecked">
                     <div v-for="todo in completedTodos" :key="todo.id" class="todo-item">

@@ -1,9 +1,10 @@
 <template>
-  <div class="todo-item-root">
+  <div class="todo-item-root" @click="onEdit">
     <!-- 左侧复选框 -->
     <el-checkbox
       :model-value="todo.checked"
       @change="onCheckedChange"
+      @click.stop
       class="main-checkbox"
       :class="['color-' + (todo.sort?.color || 'default')]"
     />
@@ -11,8 +12,12 @@
     <div class="todo-content">
       <div class="todo-text" :class="{ 'todo-done': todo.checked }">{{ todo.text }}</div>
       <div class="todo-desc" v-if="todo.desc" :class="{ 'todo-done': todo.checked }">{{ todo.desc }}</div>
+      <div v-if="todo.time" class="todo-time">
+        <i class="bi bi-alarm"></i>
+        <span>{{ todo.time }}</span>
+      </div>
       <div v-if="todo.subTodos && todo.subTodos.length" class="subtodo-toggle-row">
-        <el-button link size="small" @click="showSubTodos = !showSubTodos">
+        <el-button link size="small" @click.stop="showSubTodos = !showSubTodos">
           <el-icon v-if="!showSubTodos"><ArrowDown /></el-icon>
           <el-icon v-else><ArrowUp /></el-icon>
           <span>{{ showSubTodos ? '收起子任务' : '展开子任务' }}</span>
@@ -23,6 +28,7 @@
           <el-checkbox
             :model-value="sub.checked"
             @change="checked => onSubCheckedChange(idx, checked)"
+            @click.stop
             :style="{ '--el-checkbox-checked-bg-color': todo.sort?.color || '#409eff', '--el-checkbox-checked-border-color': todo.sort?.color || '#409eff' }"
           />
           <span :class="{ 'subtodo-done': sub.checked || todo.checked }">{{ sub.text }}</span>
@@ -30,10 +36,24 @@
       </div>
     </div>
     <!-- 删除按钮 -->
-    <el-button link class="delete-btn" @click="onDelete">
+    <el-button link class="delete-btn" @click.stop="onDelete">
       <el-icon><Delete /></el-icon>
     </el-button>
   </div>
+
+  <!-- 编辑对话框 -->
+  <el-dialog
+    v-model="showEditDialog"
+    :show-close="false"
+    width="auto"
+    align-center
+    destroy-on-close
+  >
+    <editTodo
+      :todo="todo"
+      @saved="onEditSaved"
+    />
+  </el-dialog>
 </template>
 
 
@@ -41,12 +61,24 @@
     import { ref, computed } from 'vue'
     import { useTodoListStore } from '../store/todoList.store'
     import { Delete, ArrowDown, ArrowUp } from '@element-plus/icons-vue'
+    import editTodo from './editTodo.vue'
     const { todo } = defineProps(['todo'])
 
     const TodoListStore = useTodoListStore()
     const showSubTodos = ref(true)
+    const showEditDialog = ref(false)
     const mainColor = computed(() => todo.sort?.color || '#409eff')
     
+
+    // 点击编辑
+    const onEdit = () => {
+      showEditDialog.value = true
+    }
+
+    // 编辑保存后
+    const onEditSaved = () => {
+      showEditDialog.value = false
+    }
 
     // 复选框切换待办完成状态
     const onCheckedChange = async (val) => {
@@ -68,7 +100,7 @@
 
     // 删除
     const onDelete = async () => {
-      await TodoListStore.removeTodo(todo.startDate, todo.id)
+      await TodoListStore.removeTodo(todo.listId, todo.id)
     }
 </script>
 
@@ -78,8 +110,16 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 10px 0;
+  padding: 10px;
   position: relative;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  margin: 0 -10px;
+}
+
+.todo-item-root:hover {
+  background-color: #f5f7fa;
 }
 
 .main-checkbox {
@@ -110,6 +150,23 @@
 .todo-done {
   text-decoration: line-through;
   color: #bfbfbf !important;
+}
+
+.todo-time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #909399;
+  margin-top: 2px;
+}
+
+.todo-time i {
+  font-size: 10px;
+}
+
+.todo-done + .todo-time {
+  color: #bfbfbf;
 }
 
 .subtodo-toggle-row {

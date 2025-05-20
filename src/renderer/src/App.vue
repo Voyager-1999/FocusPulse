@@ -162,45 +162,41 @@ function resetAppOnDayChange() { // 日期变动时刷新app
 function showInitialNotification() { // 展示应用首次打开时通知
   if (!(configStore.config.notificationOnStartup && !configStore.config.firstTimeOpen)) return;
   
-  setTimeout(() => {
-    const notification = new Notification("WeekToDo", {
-      body: initialNotificationText(),
-      icon: "/favicon.ico",
-      silent: true,
-    });
+  // 向主进程发送消息，创建通知
+  if(isElectron()){
+    window.electron?.createNotification({
+    title: "FocusPulse",
+    body: initialNotificationText(),
+    silent: true
+    })
 
-    notification.onclick = () => {
-      if (isElectron) {
-        window.electronAPI?.send("show-current-window");
-      }
-      setTimeout(() => {
-        const splashScreen = document.getElementById("splashScreen");
-        if (splashScreen) {
-          splashScreen.classList.add("hiddenSplashScreen");
-        }
-      }, 3000);
-    };
-
+    // 播放通知声音
+    if (configStore.config.notificationSound) {
     notifications.playNotificationSound(configStore.config.notificationSound);
-  }, 2000);
+    }
+  }
 }
 
 function initialNotificationText() { // 通知文本
-  let yesterdayTasks = TodoListStore.todoLists[dayjs().subtract(1, "d").format("YYYYMMDD")];
-  let todayTasks = TodoListStore.todoLists[dayjs().format("YYYYMMDD")];
+  let yesterdayTasks = TodoListStore.todoList[dayjs().subtract(1, "d").format("YYYYMMDD")];
+  let todayTasks = TodoListStore.todoList[dayjs().format("YYYYMMDD")];
 
   let yesterayPendingTasksCount = taskHelper.pendingTasksCount(yesterdayTasks);
   let todayPendingTasksCount = taskHelper.pendingTasksCount(todayTasks);
 
+
+  let text = '';
   if (yesterayPendingTasksCount == 0 && todayPendingTasksCount == 0) {
-    return `今天还没有没完成事件`;
+    text = `今天还没有没完成事件`;
   } else if (yesterayPendingTasksCount == 0) {
-    return `今天有${todayPendingTasksCount}个未完成事件`;
+    text = `今天有${todayPendingTasksCount}个未完成事件`;
   } else if (todayPendingTasksCount == 0) {
-    return `昨天有${yesterayPendingTasksCount}个未完成事件`;
+    text = `昨天有${yesterayPendingTasksCount}个未完成事件`;
   } else {
-    return `昨天有${yesterayPendingTasksCount}个未完成事件，今天有${todayPendingTasksCount}个未完成事件`;
+    text = `昨天有${yesterayPendingTasksCount}个未完成事件，今天有${todayPendingTasksCount}个未完成事件`;
   }
+
+  return text;
 }
 
 async function moveOldTasksToToday() {
@@ -233,20 +229,15 @@ async function moveOldTasksToToday() {
 
 async function methodsAfterInitialLoad() {
     try {
-        if (configStore.config.moveOldTasks) {
+        // 将未完成待办移动到今天
+        if (configStore.config.moveOldTodos) {
             await moveOldTasksToToday();
         }
-        
         // 刷新今日通知
         refreshTodayNotifications();
         
         // 更新最后打开日期
         configStore.updateConfig('lastDayOpened', dayjs().format("YYYYMMDD"));
-        
-        // 在Electron环境中显示初始通知
-        if (isElectron()) {
-            showInitialNotification();
-        }
     } catch (error) {
         console.error('初始化后处理失败:', error);
     }
@@ -258,28 +249,33 @@ onBeforeMount(() => {
 
 onMounted(async () => {
     try {
-        console.log('开始加载数据...')
         // 等待所有数据加载完成
         await Promise.all([
-            TodoListStore.loadTodos().then(() => console.log('待办事项加载完成')),
-            sortsStore.loadSorts().then(() => console.log('分类加载完成')),
-            configStore.loadConfig().then(() => console.log('配置加载完成'))
+            TodoListStore.loadTodos(),
+            sortsStore.loadSorts(),
+            configStore.loadConfig()
         ])
-        
-        console.log('所有数据加载完成，准备隐藏启动画面')
-        // 所有数据加载完成后，延迟2秒隐藏启动画面
-        setTimeout(() => {
-            console.log('执行隐藏启动画面')
-            hideSplash()
-        }, 2000)
-
-        // 在所有数据加载完成后执行后续操作
+        // 数据加载完成后，初始化
         await methodsAfterInitialLoad()
+
+        setTimeout(async () => {
+          hideSplash() // 隐藏启动画面
+          showInitialNotification() // 展示初始通知
+        }, 2000)
     } catch (error) {
-        console.error('数据加载失败:', error)
+        console.error('数据加载/隐藏启动动画/初始化失败:', error)
     }
     
     resetAppOnDayChange() // 设置定时器刷新软件
+})
+
+document.addEventListener('keydown', event => {
+    if ( event.key === 'F12') {
+      // 阻止默认行为
+      event.preventDefault();
+
+      window.electron.setDevTools(); // 在生产环境中打开开发者模式
+    }
 })
 </script>
 

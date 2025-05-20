@@ -121,7 +121,10 @@ export const useTodoListStore = defineStore('TodoList', {
                     dueDate: newTodo.dueDate, // 结束日期 格式为YYYYMMDD
                     listId: newTodo.listId, // 数组标记 
                     checked: false, // 是否完成
-                    subTodos: newTodo.subTodos || [], // 子任务，数据中元素为{text: string, checked: boolean}
+                    subTodos: newTodo.subTodos ? newTodo.subTodos.map(subTodo => ({
+                        text: subTodo.text,
+                        checked: subTodo.checked
+                    })) : [], // 子任务，数据中元素为{text: string, checked: boolean}
                     repeatingEvent: newTodo.repeatingEvent, // 重复类型
                     sort: newTodo.sort, // 分类，数据中元素为{name: string, color: string}
                     alarm: newTodo.alarm, // 是否提醒
@@ -159,6 +162,8 @@ export const useTodoListStore = defineStore('TodoList', {
                 // 1. 获取源列表中的未完成且未过期的待办事项
                 const originList = this.todoList[originId] || [];
                 const today = dayjs().format('YYYYMMDD');
+
+                if ( originList.length === 0 || destinyId !== today ) return;
                 
                 const itemsToMove = originList.filter(todo => {
                     // 检查是否未完成且未过期
@@ -175,11 +180,19 @@ export const useTodoListStore = defineStore('TodoList', {
                     this.todoList[destinyId] = [];
                 }
                 
-                // 更新待办事项的listId
+                // 创建新的待办对象
                 itemsToMove.forEach(todo => {
-                    todo.listId = destinyId;
-                    // todo.repeatingEvent = null // 暂时不知道有什么用
-                    this.todoList[destinyId].push(todo);
+                    const newTodo = {
+                        ...todo,
+                        listId: destinyId,
+                        repeatingEvent: null, // 暂时不知道有什么用
+                        subTodos: todo.subTodos ? todo.subTodos.map(subTodo => ({
+                            text: subTodo.text,
+                            checked: subTodo.checked
+                        })) : []
+                    };
+                    this.todoList[destinyId].push(newTodo);
+                    console.log(newTodo)
                 });
 
                 // 4. 更新数据库

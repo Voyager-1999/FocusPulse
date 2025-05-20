@@ -1,7 +1,9 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Notification } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import WavPlayer from 'node-wav-player'
+import { func } from 'vue-types'
 
 function createWindow() {
   // Create the browser window.
@@ -73,7 +75,8 @@ function createWindow() {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId(process.execPath) // 开发环境
+  // electronApp.setAppUserModelId('com.focuspuls.app') // 生产环境
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -82,9 +85,13 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
+  // IPC 
   ipcMain.on('ping', () => console.log('pong'))
   ipcMain.on('is-windows-visible',isWindowsVisible)
+  ipcMain.on('show-current-window', showCurrentWindow)
+  ipcMain.on('create-notification', createNotification)
+  ipcMain.on('play-sound', playSound)
+  ipcMain.on('set-dev-tools', setDevTools)
 
   createWindow()
 
@@ -110,4 +117,48 @@ function isWindowsVisible(event) {
   const webContents = event.sender;
   const win = BrowserWindow.fromWebContents(webContents);
   event.returnValue = win.isVisible();
+}
+
+function showCurrentWindow(event) {
+  const webContents = event.sender;
+  const win = BrowserWindow.fromWebContents(webContents);
+  // if (config.get("isMaximized")) mainWindow.maximize();
+  showWindow(win);
+}
+
+function createNotification(_, options) {
+  const notification = new Notification({
+    title: options.title,
+    body: options.body,
+    icon: join(__dirname, '../../resources/favicon.ico'),
+    silent: options.silent
+  })
+  notification.show()
+}
+
+function playSound(_, soundName) {
+  const soundPath = join(__dirname, '../../resources/sounds', soundName)
+  WavPlayer.play({
+    path: soundPath,
+    sync: true
+  }).catch(error => {
+    console.error('Error playing sound:', error)
+  })
+}
+
+function setDevTools(event) {
+  const webContents = event.sender;
+  const win = BrowserWindow.fromWebContents(webContents);
+  
+  // 判断当前是否打开控制台
+  const isOpen = win.webContents.isDevToolsOpened();
+
+  // 根据当前控制台的状态选择关闭/打开控制台
+  if (isOpen) {
+    // 关闭控制台
+    win.webContents.closeDevTools();
+  } else {
+    // 打开控制台
+    win.webContents.openDevTools();
+  }
 }
