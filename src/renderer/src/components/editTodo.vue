@@ -41,6 +41,9 @@
           title="提醒"
         ></i>
       </div>
+      <div class="repeat">
+        
+      </div>
     </div>
     <!-- 2. text输入框 -->
     <el-input v-model="todoData.text" placeholder="输入待办内容" class="todo-text-input" />

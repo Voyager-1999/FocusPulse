@@ -75,8 +75,8 @@ function createWindow() {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId(process.execPath) // 开发环境
-  // electronApp.setAppUserModelId('com.focuspuls.app') // 生产环境
+  // electronApp.setAppUserModelId(process.execPath) // 开发环境
+  electronApp.setAppUserModelId('com.focuspulse.app') // 生产环境
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -137,7 +137,12 @@ function createNotification(_, options) {
 }
 
 function playSound(_, soundName) {
-  const soundPath = join(__dirname, '../../resources/sounds', soundName)
+  const appPath = is.dev ? __dirname : app.getPath('exe')
+  // 在开发环境中使用相对路径，在生产环境中使用 resources 目录
+  const soundPath = is.dev 
+    ? join(__dirname, '../../resources/sounds', soundName)
+    : join(appPath, '../resources/sounds', soundName)
+  console.log('Playing sound from path:', soundPath)
   WavPlayer.play({
     path: soundPath,
     sync: true

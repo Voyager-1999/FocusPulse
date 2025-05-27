@@ -1,23 +1,31 @@
 export default {
     open() {
-        let req = indexedDB.open('FocusPulse', 9); // 增加版本号以触发数据库升级
+        console.log('Attempting to open IndexedDB...');
+        let req = indexedDB.open('FocusPulse', 7); // 增加版本号以触发数据库升级
         req.onupgradeneeded = function (event) {
+            console.log('Database upgrade needed');
             let db = event.target.result;
             if (!db.objectStoreNames.contains("todo_lists")) {
+                console.log('Creating todo_lists store');
                 // 使用listId作为主键
                 db.createObjectStore('todo_lists', { keyPath: 'listId', autoIncrement: false});
             }
 
             if (!db.objectStoreNames.contains("repeating_events")) {
+                console.log('Creating repeating_events store');
                 db.createObjectStore('repeating_events', { autoIncrement: false});
             }
 
             if (!db.objectStoreNames.contains("repeating_events_by_date")) {
+                console.log('Creating repeating_events_by_date store');
                 db.createObjectStore('repeating_events_by_date', { autoIncrement: false});
             }
         }
         req.onerror = function (event) { // 打开数据库失败
-            console.log('error opening database ' + event.target.errorCode);
+            console.error('Error opening database:', event.target.error);
+        }
+        req.onsuccess = function(event) {
+            console.log('Database opened successfully');
         }
         return req; // 返回IDBOpenDBRequest对象，令外部可以监听事件
     },
@@ -31,12 +39,14 @@ export default {
         let tx = db.transaction([table], 'readwrite');
         let store = tx.objectStore(table);
         let req = store.add(obj); // 只传对象，不传 key
+        console.log(obj)
         return req;
     },
     update(db, table, obj) {
         let tx = db.transaction([table], 'readwrite');
         let store = tx.objectStore(table);
         let new_obj = JSON.parse(JSON.stringify(obj));
+        console.log(new_obj)
         let req = store.put(new_obj); // 只传对象，不传 key
         return req;
     },
