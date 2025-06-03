@@ -10,6 +10,8 @@ import YesterdaySummary from '../views/YesterdaySummary.vue'
 import TodoStatistic from '../views/TodoStatistic.vue'
 import TomatoStatistic from '../views/TomatoStatistic.vue'
 import Report from '../views/Report.vue'
+import Notes from '../views/Notes.vue'
+import AIAssistant from '../views/AIAssistant.vue'
 import User from '../views/User.vue'
 
 
@@ -75,6 +77,16 @@ const router = createRouter({
 					component:Report
 				}
 			]
+		},
+		{
+			name: 'Notes',
+			path: '/Notes',
+			component: Notes
+		},
+		{
+			name: 'AIAssistant',
+			path: '/AIAssistant',
+			component: AIAssistant
 		},
 		{
 			name:'User',

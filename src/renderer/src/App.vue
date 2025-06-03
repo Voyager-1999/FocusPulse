@@ -38,6 +38,14 @@
             <el-icon><DataLine /></el-icon>
             <span>数据分析</span>
           </RouterLink>
+          <RouterLink :to="{ name: 'Notes' }" class="nav-link">
+            <el-icon><Notebook /></el-icon>
+            <span>便签</span>
+          </RouterLink>
+          <RouterLink :to="{ name: 'AIAssistant' }" class="nav-link">
+            <el-icon><MagicStick /></el-icon>
+            <span>AI 助手</span>
+          </RouterLink>
           <RouterLink :to="{name: 'User'}" class="nav-link">
             <el-icon><User /></el-icon>
             <span>我的</span>
@@ -54,7 +62,7 @@
   
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import { List, Timer, Calendar, View, Clock, DataLine, User } from '@element-plus/icons-vue'
+import { List, Timer, Calendar, View, Clock, DataLine, MagicStick ,User, Notebook } from '@element-plus/icons-vue'
 import { useTodoListStore } from './store/todoList.store'
 import { useSortsStore } from './store/sorts.store'
 import { useConfigStore } from './store/config.store'
