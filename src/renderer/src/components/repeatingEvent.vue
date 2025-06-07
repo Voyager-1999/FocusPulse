@@ -1,11 +1,14 @@
 <template>
   <div
     id="reDropDown"
-    class="header-menu-icons"
+    class="header-menu-icons dropdown-toggle"  
     type="button"
     data-bs-toggle="dropdown"
     data-bs-auto-close="outside"
+    aria-expanded="false"
     title="重复任务"
+    @click="handleClick"
+    ref="dropdownRef"  
   >
     <i id="btnRepeatingEvent" :class="{ 'bi-arrow-clockwise': !repeatingEvent, 'bi-arrow-repeat': repeatingEvent }"></i>
   </div>
@@ -101,14 +104,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { RRule, rrulestr } from 'rrule'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import localeData from 'dayjs/plugin/localeData'
 import { Dropdown } from 'bootstrap'
-import repeatingEventRepository from '../../repositories/repeatingEventRepository'
-import repeatingEventByDateRepository from '../../repositories/repeatingEventByDateRepository'
+import repeatingEventRepository from '../repositories/repeatingEventRepository'
+import repeatingEventByDateRepository from '../repositories/repeatingEventByDateRepository'
 import repeatingEventHelper from '../utils/repeatingEventHelper.js'
 import { useRepeatingEventStore } from '../store/repeatingEvent.store'
 import { useRepeatingEventDateCacheStore } from '../store/repeatingEventDateCache.store'
@@ -148,6 +151,8 @@ const repeatingEventDateCacheStore = useRepeatingEventDateCacheStore()
 // Computed
 const language = computed(() => repeatingEventStore.config?.language || 'en')
 
+const dropdownRef = ref(null)
+
 // Methods
 function getWeekdayLabel(day) {
   return dayjs().locale(language.value).day(day).format('dd')[0]
@@ -176,17 +181,19 @@ function done() {
     repeatingEventId = null
   }
   
-  let reDropDown = document.getElementById('reDropDown')
-  let dropdown = new Dropdown(reDropDown)
-  dropdown.hide()
+  // 修改这里：使用 ref 代替 getElementById
+  if (dropdownInstance) {
+    dropdownInstance.hide()
+  }
   emit('repeatingEventSelected', repeatingEventId)
 }
 
 function split() {
   repeatingEventRepository.remove(props.repeatingEvent)
-  let reDropDown = document.getElementById('reDropDown')
-  let dropdown = new Dropdown(reDropDown)
-  dropdown.hide()
+  // 修改这里：使用 ref 代替 getElementById
+  if (dropdownInstance) {
+    dropdownInstance.hide()
+  }
   emit('repeatingEventSelected', null)
 }
 
@@ -301,10 +308,33 @@ watch(
   },
   { immediate: true }
 )
+
+let dropdownInstance = null
+
+onMounted(() => {
+  // 使用 ref 引用来初始化 dropdown
+  if (dropdownRef.value) {
+    dropdownInstance = new Dropdown(dropdownRef.value, {
+      autoClose: 'outside'
+    })
+  }
+})
+
+function handleClick(event) {
+  if (dropdownInstance) {
+    dropdownInstance.toggle()
+  }
+}
+
+onUnmounted(() => {
+  if (dropdownInstance) {
+    dropdownInstance.dispose()
+  }
+})
 </script>
 
 <style scoped lang="scss">
-// @import "/src/assets/style/globallets.scss";
+@use "/src/assets/style/globalVars.scss" as *;
 
 .header-menu-icons {
   margin-left: 6px;
@@ -404,5 +434,18 @@ watch(
 .weekDays-selector input[type="checkbox"]:checked + label {
   background: #5c5c5c;
   color: #ffffff;
+}
+
+.dropdown-toggle::after {
+  display: none; // 隐藏默认的下拉箭头
+}
+
+.dropdown-menu {
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.drop-container {
+  padding: 0.5rem;
 }
 </style>

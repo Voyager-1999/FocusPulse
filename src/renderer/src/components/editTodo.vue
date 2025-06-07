@@ -42,7 +42,11 @@
         ></i>
       </div>
       <div class="repeat">
-        
+        <repeating-event 
+          :repeatingEvent="todoData.repeatingEvent" 
+          :todo="todoData"
+          @repeatingEventSelected="changeRepeatingEvent"
+        ></repeating-event>
       </div>
     </div>
     <!-- 2. text输入框 -->
@@ -111,6 +115,7 @@ import { ArrowDown, Plus, Delete } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import datePicker from './datePicker.vue'
 import notifications from '../utils/notifications'
+import repeatingEvent from './repeatingEvent.vue'
 
 const props = defineProps({
   todo: Object, // 传入则为编辑，否则新建
@@ -212,6 +217,10 @@ function onTimeSelected(time) {
 
 function toggleAlarm() {
   todoData.value.alarm = !todoData.value.alarm
+}
+
+function changeRepeatingEvent(repeatingEvent) {
+  todoData.value.repeatingEvent = repeatingEvent;
 }
 
 watch(
