@@ -7,7 +7,15 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import { createPinia } from 'pinia'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
-import 'bootstrap-icons/font/bootstrap-icons.css';
+
+// 使用本地 Bootstrap 文件
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
+import 'bootstrap-icons/font/bootstrap-icons.css'
+
+import "./assets/style/globalVars.scss"
+import "./assets/style/main.scss"
+import "./assets/style/uiComponents.scss"
 
 const app = createApp(App)
 const pinia = createPinia()

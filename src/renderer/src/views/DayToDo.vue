@@ -74,15 +74,24 @@
                 </div>
             </div>
             <div class="header-bottom">
-              <el-input
-                v-model="quickInput"
-                placeholder="在此添加内容，按回车新建事件"
-                @keyup.enter="onQuickInputEnter"
-                class="quick-input"
-              />
-              <el-dialog v-model="showQuickEdit" :show-close="false" width="auto" align-center>
-                <editTodo :initialText="quickInput" @saved="onQuickEditSaved" />
-              </el-dialog>
+                <div class="quick-input-container">
+                    <el-input
+                        v-model="quickInput"
+                        placeholder="在此添加内容，按回车新建事件"
+                        @keyup.enter="onQuickInputEnter"
+                        class="quick-input"
+                    />
+                    <i
+                        class="bi bi-arrow-repeat repeat-events-btn"
+                        title="重复事件"
+                        data-bs-toggle="modal"
+                        data-bs-target="#RecurrentEventsModal"
+                    ></i>
+                </div>
+                <el-dialog v-model="showQuickEdit" :show-close="false" width="auto" align-center>
+                    <editTodo :initialText="quickInput" @saved="onQuickEditSaved" />
+                </el-dialog>
+                <!-- 移除直接渲染的 RecurrentEventsModal 组件 -->
             </div>
         </div>
         <div class="todo-list">
@@ -101,6 +110,7 @@
 
             </div>
         </div>
+        <RecurrentEventsModal />
     </div>
 </template>
 
@@ -126,6 +136,9 @@
     import moment from 'moment'
     import editTodo from '../components/editTodo.vue'
     import { useRoute } from 'vue-router'
+    import RecurrentEventsModal from '../components/RecurrentEventsModal.vue'
+    import 'bootstrap-icons/font/bootstrap-icons.css'
+    import { Modal } from 'bootstrap';
 
 
     const TodoListStore = useTodoListStore()
@@ -207,6 +220,21 @@
         
         return Sunny // 默认返回晴天图标
     }
+
+    onMounted(() => {
+      const modalElement = document.getElementById('RecurrentEventsModal');
+      if (modalElement) {
+        const modal = new Modal(modalElement, { backdrop: 'static' });
+
+        modalElement.addEventListener('hidden.bs.modal', () => {
+          // 将焦点移到页面的主内容区
+          const mainContent = document.querySelector('.DayToDo');
+          if (mainContent) {
+            mainContent.focus();
+          }
+        });
+      }
+    });
 </script>
 
 
@@ -243,12 +271,33 @@
     margin-bottom: 12px;
 }
 
+.quick-input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
 .quick-input {
     width: 540px;
     height: 44px;
     font-size: 16px;
     margin-bottom: 8px;
     border-radius: 8px;
+}
+
+.repeat-events-btn {
+    font-size: 20px;
+    color: #606266;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.repeat-events-btn:hover {
+    background-color: #f5f7fa;
+    color: #409eff;
 }
 
 .sort-container {

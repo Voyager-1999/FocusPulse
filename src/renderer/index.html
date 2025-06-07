@@ -1,19 +1,15 @@
 <!doctype html>
-<html>
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FocusPulse</title>
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <!-- 保持原有的 CSP 配置 -->
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self' https://*.amap.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.amap.com https://webapi.amap.com; script-src-elem 'self' 'unsafe-inline' https://*.amap.com https://webapi.amap.com; style-src 'self' 'unsafe-inline' https://*.amap.com; img-src 'self' data: https://*.amap.com; connect-src 'self' https://*.amap.com; font-src 'self' data:; media-src 'self'"
     />
-    <!-- <script
-      type="text/javascript" 
-      src="https://webapi.amap.com/maps?v=2.0&key=a2073bdbfee2977c91b2005a9d46b7b6"
-      ></script> -->
   </head>
-
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>

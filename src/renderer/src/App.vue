@@ -60,6 +60,8 @@ import { List, Timer, Calendar, View, Clock, DataLine, User } from '@element-plu
 import { useTodoListStore } from './store/todoList.store'
 import { useSortsStore } from './store/sorts.store'
 import { useConfigStore } from './store/config.store'
+import { useRepeatingEventStore } from './store/repeatingEvent.store'
+import { useRepeatingEventDateCacheStore } from './store/repeatingEventDateCache.store'
 import { onMounted, onBeforeMount, ref } from 'vue'
 import AMapLoader from '@amap/amap-jsapi-loader';
 import dayjs from 'dayjs'
@@ -67,11 +69,14 @@ import isElectron from "is-electron";
 import notifications from './utils/notifications'
 import taskHelper from './utils/tasksHelper'
 import SplashScreen from './components/splashScreen.vue'
+import repeatingEventRepository from './repositories/repeatingEventRepository'
 
 
 const TodoListStore = useTodoListStore()
 const sortsStore = useSortsStore()
 const configStore = useConfigStore()
+const repeatingEventStore = useRepeatingEventStore()
+const repeatingEventDateCacheStore = useRepeatingEventDateCacheStore()
 
 const cityData = ref(null)
 const weatherData = ref(null)
@@ -243,7 +248,37 @@ async function methodsAfterInitialLoad() {
     }
 }
 
-onBeforeMount(() => {
+async function deleteOldRepeatingEvents() {
+  const repeatingEvents = repeatingEventStore.getRepeatingEventList
+  for (const [id, event] of Object.entries(repeatingEvents)) {
+    if (dayjs(event.end_date).isBefore(dayjs())) {
+      try {
+        await new Promise((resolve, reject) => {
+          repeatingEventRepository.remove(id)
+          repeatingEventStore.removeRepeatingEvent(id)
+          resolve()
+        })
+      } catch (error) {
+        console.error(`删除重复事件 ${id} 失败:`, error)
+      }
+    }
+  }
+}
+
+onBeforeMount(async () => {
+  try {
+    // 1. 加载所有重复事件
+    await repeatingEventStore.loadAllRepeatingEvent()
+    
+    // 2. 删除过期的重复事件
+    await deleteOldRepeatingEvents()
+    
+    // 3. 加载重复事件日期缓存
+    repeatingEventDateCacheStore.loadRepeatingEventDateCache(repeatingEventStore.getRepeatingEventList)
+  } catch (error) {
+    console.error('初始化重复事件失败:', error)
+  }
+  
   loadAMap() // 初始化时加载地图
 })
 

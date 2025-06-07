@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import dbRepository from "../../repositories/dbRepository";
+import dbRepository from "../repositories/dbRepository";
 
 export const useRepeatingEventStore = defineStore('repeatingEvent', {
   state: () => ({

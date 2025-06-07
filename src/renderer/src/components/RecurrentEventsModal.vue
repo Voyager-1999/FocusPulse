@@ -10,7 +10,6 @@
               class="form-select re-input w-auto mx-3"
               aria-label="Default select example"
               v-model="repeatingType"
-              :disabled="repeatingEvent"
             >
               <option value="all">显示全部</option>
               <option value="3">每天</option>
@@ -22,7 +21,7 @@
               <option value="0">每年</option>
             </select>
           </div>
-          <i class="bi-x close-modal" data-bs-dismiss="modal"></i>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <table class="table table-hover">
@@ -62,10 +61,16 @@
     @on-ok="removeRepeatingTaskComfirmed"
     @on-cancel="removeRepeatingTaskCanceled"
   ></comfirm-modal>
+  <!-- 确保该元素存在 -->
+  <div id="recurrentTaskRemoved" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-body">
+      重复任务已删除
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Toast, Modal } from "bootstrap"
 import repeatingEventHelper from "../utils/repeatingEventHelper.js"
 import repeatingEventRepository from "../repositories/repeatingEventRepository"
@@ -116,31 +121,61 @@ function frecuency(task) {
 
 function removeRecurringTask(id) {
   idToRemove.value = id
-  let modal = new Modal(document.getElementById("removeReModal"), { backdrop: "static" })
-  modal.show()
+  const modalElement = document.getElementById("removeReModal")
+  if (modalElement) {
+    const modal = new Modal(modalElement, { backdrop: "static" })
+    modal.show()
+  }
 }
 
 function removeRepeatingTaskComfirmed() {
   repeatingEventRepository.remove(idToRemove.value)
   repeatingEventStore.removeRepeatingEvent(idToRemove.value)
-  
+
   repeatingEventStore.selectedDates.forEach((date) => {
     repeatingEventHelper.removeGeneratedRepeatingEvents(date)
   })
-  
+
   repeatingEventDateCacheStore.resetRepeatingEventDateCache()
   repeatingEventDateCacheStore.loadRepeatingEventDateCache(repeatingEventStore.repeatingEventList)
-  
-  let modal = new Modal(document.getElementById("RecurrentEventsModal"))
-  modal.show()
-  let toast = new Toast(document.getElementById("recurrentTaskRemoved"))
-  toast.show()
+
+  const modalElement = document.getElementById("RecurrentEventsModal")
+  if (modalElement) {
+    const modal = new Modal(modalElement)
+    modal.show()
+  }
+  const toastElement = document.getElementById("recurrentTaskRemoved")
+  if (toastElement) {
+    const toast = new Toast(toastElement)
+    toast.show()
+  }
 }
 
 function removeRepeatingTaskCanceled() {
-  let modal = new Modal(document.getElementById("RecurrentEventsModal"))
-  modal.show()
+  const modalElement = document.getElementById("RecurrentEventsModal")
+  if (modalElement) {
+    const modal = new Modal(modalElement)
+    modal.show()
+  }
 }
+
+function showModal() {
+  const modalElement = document.getElementById('RecurrentEventsModal');
+  if (modalElement) {
+    const modal = new Modal(modalElement, { backdrop: 'static' });
+    modal.show();
+  }
+}
+
+onMounted(() => {
+  const modalElement = document.getElementById('RecurrentEventsModal');
+  if (modalElement) {
+    const modal = new Modal(modalElement);
+    console.log('Modal initialized:', modal);
+  } else {
+    console.error('Modal element not found');
+  }
+});
 </script>
 
 <style scoped lang="scss">
