@@ -269,6 +269,7 @@ onBeforeMount(async () => {
   try {
     // 1. 加载所有重复事件
     await repeatingEventStore.loadAllRepeatingEvent()
+    await repeatingEventStore.loadAllRepeatingEventByDate()
     
     // 2. 删除过期的重复事件
     await deleteOldRepeatingEvents()

@@ -125,7 +125,7 @@ export const useTodoListStore = defineStore('TodoList', {
                         text: subTodo.text,
                         checked: subTodo.checked
                     })) : [], // 子任务，数据中元素为{text: string, checked: boolean}
-                    repeatingEvent: newTodo.repeatingEvent, // 重复类型
+                    repeatingEvent: newTodo.repeatingEvent, // 重复事件ID
                     sort: newTodo.sort, // 分类，数据中元素为{name: string, color: string}
                     alarm: newTodo.alarm, // 是否提醒
                     time: newTodo.time, // 提醒时间

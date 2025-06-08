@@ -30,57 +30,94 @@ export const useRepeatingEventStore = defineStore('repeatingEvent', {
     },
 
     loadRepeatingEventGeneratedByDate(obj) {
-      this.repeatingEventByDate[obj.key] = obj.val ? obj.val : {};
+      this.repeatingEventByDate[obj.key] = obj.val || {};
     },
 
     async loadRepeatingEventById(repeatingEventId) {
-      let db_req = dbRepository.open();
+      try {
+        const db = await new Promise((resolve, reject) => {
+          const req = dbRepository.open();
+          req.onsuccess = (event) => resolve(event.target.result);
+          req.onerror = (event) => reject(event.target.error);
+        });
 
-      db_req.onsuccess = function (event) {
-        let db = event.target.result;
-        let get_req = dbRepository.get(db, "repeating_events", repeatingEventId);
+        const repeatingEvent = await new Promise((resolve, reject) => {
+          const req = dbRepository.get(db, "repeating_events", repeatingEventId);
+          req.onsuccess = (event) => resolve(event.target.result);
+          req.onerror = (event) => reject(event.target.error);
+        });
 
-        get_req.onsuccess = function (event) {
-          let repeatingEvent = event.target.result;
+        if (repeatingEvent) {
           this.loadRepeatingEvent(repeatingEvent);
-        }.bind(this);
-      }.bind(this);
+        }
+      } catch (error) {
+        console.error('Error loading repeating event:', error);
+      }
     },
 
     async loadAllRepeatingEvent() {
-      return new Promise((resolve) => {
-        let db_req = dbRepository.open();
-        db_req.onsuccess = function (event) {
-          let db = event.target.result;
-          let get_req = dbRepository.selectAll(db, "repeating_events");
-          let repeatingEvents = {};
-          get_req.onsuccess = function () {
-            let cursor = get_req.result;
+      try {
+        // 使用 Promise 包装 dbRepository.open()
+        const db = await new Promise((resolve, reject) => {
+          const req = dbRepository.open();
+          req.onsuccess = (event) => resolve(event.target.result);
+          req.onerror = (event) => reject(event.target.error);
+        });
+
+        const repeatingEvents = {};
+        
+        // 使用 Promise 包装 selectAll 操作
+        await new Promise((resolve, reject) => {
+          const req = dbRepository.selectAll(db, "repeating_events");
+          req.onsuccess = (event) => {
+            const cursor = event.target.result;
             if (cursor) {
               repeatingEvents[cursor.key] = cursor.value;
               cursor.continue();
             } else {
-              this.loadRepeatingEventList(repeatingEvents);
               resolve();
             }
-          }.bind(this);
-        }.bind(this);
-      });
+          };
+          req.onerror = (event) => reject(event.target.error);
+        });
+        
+        this.loadRepeatingEventList(repeatingEvents);
+      } catch (error) {
+        console.error('Error loading all repeating events:', error);
+      }
     },
 
-    async loadRepeatingEventGeneratedByDate(date) {
-      return new Promise((resolve) => {
-        let db_req = dbRepository.open();
-        db_req.onsuccess = function (event) {
-          let db = event.target.result;
-          let get_req = dbRepository.get(db, "repeating_events_by_date", date);
-          get_req.onsuccess = function (event) {
-            let re_list = event.target.result;
-            this.loadRepeatingEventGeneratedByDate({ key: date, val: re_list });
-            resolve();
-          }.bind(this);
-        }.bind(this);
-      });
-    },
+    async loadAllRepeatingEventByDate() {
+      try {
+        const db = await new Promise((resolve, reject) => {
+          const req = dbRepository.open();
+          req.onsuccess = (event) => resolve(event.target.result);
+          req.onerror = (event) => reject(event.target.error);
+        });
+    
+        // 使用 selectAll 获取所有记录
+        await new Promise((resolve, reject) => {
+          const req = dbRepository.selectAll(db, "repeating_events_by_date");
+          req.onsuccess = (event) => {
+            const cursor = event.target.result;
+            if (cursor) {
+              // 每条记录的结构: { re_by_date: {...}, listId: 'YYYYMMDD' }
+              const dateData = cursor.value;
+              // 更新 store 中的状态
+              this.loadRepeatingEventGeneratedByDate({ 
+                key: dateData.listId, 
+                val: dateData.re_by_date 
+              });
+              cursor.continue();
+            } else {
+              resolve();
+            }
+          };
+          req.onerror = (event) => reject(event.target.error);
+        });
+      } catch (error) {
+        console.error('Error loading all repeating events by date:', error);
+      }
+    }
   },
 });

@@ -1,6 +1,5 @@
 export default {
     open() {
-        console.log('Attempting to open IndexedDB...');
         let req = indexedDB.open('FocusPulse', 7); // 增加版本号以触发数据库升级
         req.onupgradeneeded = function (event) {
             console.log('Database upgrade needed');
@@ -13,12 +12,12 @@ export default {
 
             if (!db.objectStoreNames.contains("repeating_events")) {
                 console.log('Creating repeating_events store');
-                db.createObjectStore('repeating_events', { autoIncrement: false});
+                db.createObjectStore('repeating_events', { keyPath: 'id', autoIncrement: false});
             }
 
             if (!db.objectStoreNames.contains("repeating_events_by_date")) {
                 console.log('Creating repeating_events_by_date store');
-                db.createObjectStore('repeating_events_by_date', { autoIncrement: false});
+                db.createObjectStore('repeating_events_by_date', { keyPath: 'listId', autoIncrement: false});
             }
         }
         req.onerror = function (event) { // 打开数据库失败
@@ -46,8 +45,8 @@ export default {
         let tx = db.transaction([table], 'readwrite');
         let store = tx.objectStore(table);
         let new_obj = JSON.parse(JSON.stringify(obj));
-        console.log(new_obj)
-        let req = store.put(new_obj); // 只传对象，不传 key
+        console.log(new_obj)      
+        let req = store.put(new_obj); 
         return req;
     },
     delete(db, table, id) {

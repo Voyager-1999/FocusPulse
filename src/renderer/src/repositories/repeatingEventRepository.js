@@ -5,7 +5,7 @@ export default {
     let db_req = dbRepository.open();
     db_req.onsuccess = function (event) {
       let db = event.target.result;
-      dbRepository.update(db, "repeating_events", repeatingEventId, repeatingEvent);
+      dbRepository.update(db, "repeating_events", repeatingEvent);
     };
   },
   remove(repeatingEventId) {

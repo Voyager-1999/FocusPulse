@@ -76,9 +76,13 @@ import repeatingEventHelper from "../utils/repeatingEventHelper.js"
 import repeatingEventRepository from "../repositories/repeatingEventRepository"
 import comfirmModal from "./comfirmModal.vue"
 import dayjs from "dayjs"
+import localeData from 'dayjs/plugin/localeData'
+import 'dayjs/locale/zh-cn' // 导入中文语言包
 import { useRepeatingEventStore } from '../store/repeatingEvent.store'
 import { useRepeatingEventDateCacheStore } from '../store/repeatingEventDateCache.store'
 import { useConfigStore } from '../store/config.store'
+
+dayjs.extend(localeData)
 
 const repeatingEventStore = useRepeatingEventStore()
 const repeatingEventDateCacheStore = useRepeatingEventDateCacheStore()
@@ -101,13 +105,17 @@ const recurringTasks = computed(() => {
 })
 
 function frecuency(task) {
+  // 设置默认语言
+  const locale = language.value || 'zh-cn'
+  dayjs.locale(locale)
+
   switch (task.type) {
     case "0":
-      return "每年 / " + dayjs(task.start_date).locale(language.value).format("MMM Do")
+      return "每年 / " + dayjs(task.start_date).format("MMM Do")
     case "1":
-      return "每月 / " + dayjs(task.start_date).locale(language.value).format("Do")
+      return "每月 / " + dayjs(task.start_date).format("Do")
     case "2":
-      return "每周 / " + dayjs(task.start_date).locale(language.value).format("dddd")
+      return "每周 / " + dayjs(task.start_date).format("dddd")
     case "3":
       return "每天"
     case "4":
@@ -132,13 +140,21 @@ function removeRepeatingTaskComfirmed() {
   repeatingEventRepository.remove(idToRemove.value)
   repeatingEventStore.removeRepeatingEvent(idToRemove.value)
 
-  repeatingEventStore.selectedDates.forEach((date) => {
-    repeatingEventHelper.removeGeneratedRepeatingEvents(date)
-  })
+  // 删除未来3个月内的重复任务实例
+  const today = dayjs();
+  const threeMonthsLater = today.add(3, 'month');
+  let current = today.clone();
+  while (current.isBefore(threeMonthsLater)) {
+    const dateStr = current.format('YYYYMMDD');
+    repeatingEventHelper.removeGeneratedRepeatingEvents(dateStr);
+    current = current.add(1, 'day');
+  }
 
+  // 重置缓存并重新加载
   repeatingEventDateCacheStore.resetRepeatingEventDateCache()
   repeatingEventDateCacheStore.loadRepeatingEventDateCache(repeatingEventStore.repeatingEventList)
 
+   // 显示模态框和提示
   const modalElement = document.getElementById("RecurrentEventsModal")
   if (modalElement) {
     const modal = new Modal(modalElement)
@@ -171,7 +187,6 @@ onMounted(() => {
   const modalElement = document.getElementById('RecurrentEventsModal');
   if (modalElement) {
     const modal = new Modal(modalElement);
-    console.log('Modal initialized:', modal);
   } else {
     console.error('Modal element not found');
   }

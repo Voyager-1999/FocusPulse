@@ -18,7 +18,7 @@ export const useRepeatingEventDateCacheStore = defineStore('repeatingEventDateCa
     loadRepeatingEventDateCache(repeatingEventList) {
       let today = new Date();
       let future_date = new Date();
-      future_date.setFullYear(today.getFullYear() + 10); // 未来10年
+      future_date.setFullYear(today.getFullYear() + 1); // 未来1年
       for (const [id, re] of Object.entries(repeatingEventList)) {
         const rule = rrulestr(re.repeating_rule);
         rule.between(today, future_date).forEach((date) => {
@@ -34,7 +34,7 @@ export const useRepeatingEventDateCacheStore = defineStore('repeatingEventDateCa
     addRepeatingEventToDateCache(re) {
       let today = new Date();
       let future_date = new Date();
-      future_date.setFullYear(today.getFullYear() + 10);
+      future_date.setFullYear(today.getFullYear() + 1);
       const rule = rrulestr(re.repeating_rule);
       rule.between(today, future_date).forEach((date) => {
         const dateKey = moment.utc(date).format("YYYYMMDD");

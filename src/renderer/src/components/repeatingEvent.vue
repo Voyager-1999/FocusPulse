@@ -111,10 +111,8 @@ import utc from 'dayjs/plugin/utc'
 import localeData from 'dayjs/plugin/localeData'
 import { Dropdown } from 'bootstrap'
 import repeatingEventRepository from '../repositories/repeatingEventRepository'
-import repeatingEventByDateRepository from '../repositories/repeatingEventByDateRepository'
-import repeatingEventHelper from '../utils/repeatingEventHelper.js'
 import { useRepeatingEventStore } from '../store/repeatingEvent.store'
-import { useRepeatingEventDateCacheStore } from '../store/repeatingEventDateCache.store'
+
 
 // 初始化 dayjs 插件
 dayjs.extend(utc)
@@ -122,7 +120,8 @@ dayjs.extend(localeData)
 
 const props = defineProps({
   repeatingEvent: { required: true, type: [String, null] },
-  todo: { required: true, type: [Object, null] }
+  todo: { required: true, type: [Object, null] },
+  rule: { required: true, type: [Object, null] }
 })
 
 const emit = defineEmits(['repeatingEventSelected'])
@@ -144,14 +143,12 @@ const weekdays = reactive({
   sun: false
 })
 
-// Store
-const repeatingEventStore = useRepeatingEventStore()
-const repeatingEventDateCacheStore = useRepeatingEventDateCacheStore()
-
 // Computed
 const language = computed(() => repeatingEventStore.config?.language || 'en')
 
 const dropdownRef = ref(null)
+
+const repeatingEventStore = useRepeatingEventStore()
 
 // Methods
 function getWeekdayLabel(day) {
@@ -161,31 +158,11 @@ function getWeekdayLabel(day) {
 function done() {
   const rule = repeatingEventRule()
   let repeatingEventId = props.repeatingEvent ? props.repeatingEvent : dayjs().valueOf().toString()
-  
-  if (rule) {
-    let date = props.todo.listId
-    let re_by_date = repeatingEventStore.repeatingEventByDate[date] || {}
-    re_by_date[repeatingEventId] = true
-    repeatingEventByDateRepository.update(date, re_by_date)
-    
-    const re_event = generateRepeatingEvent(rule, repeatingEventId)
-    repeatingEventRepository.update(repeatingEventId, re_event)
-    repeatingEventStore.updateRepeatingEvent({ key: repeatingEventId, val: re_event })
-    repeatingEventDateCacheStore.addRepeatingEventToDateCache(re_event)
-    
-    repeatingEventStore.selectedDates.forEach(date => {
-      repeatingEventHelper.generateRepeatingEventsIntances(date)
-    })
-  } else {
-    repeatingEventRepository.remove(repeatingEventId)
-    repeatingEventId = null
-  }
-  
-  // 修改这里：使用 ref 代替 getElementById
+
   if (dropdownInstance) {
     dropdownInstance.hide()
   }
-  emit('repeatingEventSelected', repeatingEventId)
+  emit('repeatingEventSelected', repeatingEventId, rule, repeatingType.value, ocurrencesType.value)
 }
 
 function split() {
@@ -194,7 +171,7 @@ function split() {
   if (dropdownInstance) {
     dropdownInstance.hide()
   }
-  emit('repeatingEventSelected', null)
+  emit('repeatingEventSelected', null, null)
 }
 
 function repeatingEventRule() {
@@ -238,72 +215,72 @@ function repeatingEventRule() {
   return new RRule(ruleOptions)
 }
 
-function generateRepeatingEvent(rule, repeatingEventId) {
-  let todo_data = JSON.parse(JSON.stringify(props.todo))
-  todo_data.repeatingEvent = repeatingEventId
-  const rule2 = rrulestr(rule.toString())
-  
-  let re_event = {
-    start_date: rule.options.dtstart,
-    repeating_rule: rule.toString(),
-    type: repeatingType.value,
-    ocurrencesType: ocurrencesType.value,
-    data: todo_data,
-    id: repeatingEventId
-  }
-
-  if (ocurrencesType.value == 'ocurrences') {
-    re_event.end_date = dayjs(rule2.all().slice(-1)[0]).toDate()
-  } else if (ocurrencesType.value == 'untilDate') {
-    re_event.end_date = dayjs(rule.options.until).toDate()
-  } else {
-    let date = dayjs().add(15, 'year').toDate()
-    re_event.end_date = date
-  }
-
-  return re_event
-}
-
 // Watch
 watch(
-  () => props.repeatingEvent,
-  (newVal) => {
-    let re = repeatingEventStore.repeatingEventList[newVal]
+  [() => props.repeatingEvent, () => props.rule],
+  ([newRepeatingEvent, newRule]) => {
+    // 优先使用传入的 rule，如果没有则从 store 中获取
+    let re = newRule ? { repeating_rule: newRule.toString() } : repeatingEventStore.repeatingEventList[newRepeatingEvent]
     weekdays.mon = weekdays.tue = weekdays.wed = weekdays.thu = weekdays.fri = weekdays.sat = weekdays.sun = false
     
     if (re) {
       const rule = rrulestr(re.repeating_rule)
       repeatingType.value = rule.options.freq
-      interval.value = rule.options.interval
-      ocurrences.value = rule.options.count
-      ocurrencesType.value = re.ocurrencesType
-      untilDate.value = rule.options.until
-        ? dayjs(rule.options.until).format('YYYY-MM-DD')
-        : null
-
-      if (rule.options.byweekday) {
-        rule.options.byweekday.includes(0) && (weekdays.mon = true)
-        rule.options.byweekday.includes(1) && (weekdays.tue = true)
-        rule.options.byweekday.includes(2) && (weekdays.wed = true)
-        rule.options.byweekday.includes(3) && (weekdays.thu = true)
-        rule.options.byweekday.includes(4) && (weekdays.fri = true)
-        rule.options.byweekday.includes(5) && (weekdays.sat = true)
-        rule.options.byweekday.includes(6) && (weekdays.sun = true)
-        repeatingType.value = 5
+      interval.value = rule.options.interval || 1
+      
+      // 处理重复次数和结束日期
+      if (rule.options.count) {
+        ocurrencesType.value = 'ocurrences'
+        ocurrences.value = rule.options.count
+      } else if (rule.options.until) {
+        ocurrencesType.value = 'untilDate'
+        untilDate.value = dayjs(rule.options.until).format('YYYY-MM-DD')
+      } else {
+        ocurrencesType.value = ''
+        ocurrences.value = 1
+        untilDate.value = ''
       }
 
+      // 处理工作日规则
+      if (rule.options.byweekday) {
+        rule.options.byweekday.forEach(day => {
+          switch(day) {
+            case 0: weekdays.mon = true; break;
+            case 1: weekdays.tue = true; break;
+            case 2: weekdays.wed = true; break;
+            case 3: weekdays.thu = true; break;
+            case 4: weekdays.fri = true; break;
+            case 5: weekdays.sat = true; break;
+            case 6: weekdays.sun = true; break;
+          }
+        })
+        
+        // 如果是工作日规则，设置为自定义工作日类型
+        if (rule.options.byweekday.length === 5 && 
+            rule.options.byweekday.includes(0) && 
+            rule.options.byweekday.includes(1) && 
+            rule.options.byweekday.includes(2) && 
+            rule.options.byweekday.includes(3) && 
+            rule.options.byweekday.includes(4)) {
+          repeatingType.value = 4 // 工作日
+        } else {
+          repeatingType.value = 5 // 自定义工作日
+        }
+      }
+
+      // 处理每月指定日期规则
       if (rule.options.bymonthday && rule.options.bymonthday.length > 0) {
         repeatingType.value = 6
         daysOfMonth.value = rule.options.bymonthday.join(',')
       }
     } else {
+      // 重置所有值
       repeatingType.value = ''
       ocurrencesType.value = ''
       daysOfMonth.value = ''
       interval.value = 1
       untilDate.value = ''
-      ocurrences.value = null
-      untilDate.value = null
+      ocurrences.value = 1
     }
   },
   { immediate: true }

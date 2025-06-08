@@ -45,6 +45,7 @@
         <repeating-event 
           :repeatingEvent="todoData.repeatingEvent" 
           :todo="todoData"
+          :rule="rule"
           @repeatingEventSelected="changeRepeatingEvent"
         ></repeating-event>
       </div>
@@ -96,10 +97,6 @@
       </div>
     </div>
     <el-input v-model="subInput" placeholder="添加子任务,按下回车新建" @keyup.enter="addSubTodo" class="subtodo-input" />
-    <!-- 6. 重复类型按钮（预留） -->
-    <div class="repeatingEvent-row">
-      <!-- 预留 -->
-    </div>
     <!-- 7. 保存按钮 -->
     <el-button type="primary" class="save-btn" @click="saveTodo">保存</el-button>
   </div>
@@ -116,6 +113,14 @@ import dayjs from 'dayjs'
 import datePicker from './datePicker.vue'
 import notifications from '../utils/notifications'
 import repeatingEvent from './repeatingEvent.vue'
+import repeatingEventByDateRepository from '../repositories/repeatingEventByDateRepository'
+import repeatingEventRepository from '../repositories/repeatingEventRepository'
+import repeatingEventHelper from '../utils/repeatingEventHelper.js'
+import { useRepeatingEventStore } from '../store/repeatingEvent.store'
+import { useRepeatingEventDateCacheStore } from '../store/repeatingEventDateCache.store'
+import { rrulestr } from 'rrule'
+
+
 
 const props = defineProps({
   todo: Object, // 传入则为编辑，否则新建
@@ -150,6 +155,14 @@ const start_isToday = computed(() => todoData.value.startDate === dayjs().format
 const start_isTomorrow = computed(() => todoData.value.startDate === dayjs().add(1, 'day').format('YYYYMMDD'))
 const due_isToday = computed(() => todoData.value.dueDate === dayjs().format('YYYYMMDD'))
 const due_isTomorrow = computed(() => todoData.value.dueDate === dayjs().add(1, 'day').format('YYYYMMDD'))
+
+let rule = ref(null)
+let repeatingType = ref(null)
+let ocurrencesType = ref(null)
+
+// Store
+const repeatingEventStore = useRepeatingEventStore()
+const repeatingEventDateCacheStore = useRepeatingEventDateCacheStore()
 
 onMounted(() => {
   if (props.todo) {
@@ -195,6 +208,33 @@ function addSubTodo() {
 function deleteSubTodo(idx) {
   todoData.value.subTodos.splice(idx, 1)
 }
+
+function generateRepeatingEvent(rule, repeatingEventId) {
+  let todo_data = todoData.value
+  todo_data.repeatingEvent = repeatingEventId
+  const rule2 = rrulestr(rule.toString())
+  
+  let re_event = {
+    start_date: rule.options.dtstart,
+    repeating_rule: rule.toString(),
+    type: repeatingType.value,
+    ocurrencesType: ocurrencesType.value,
+    data: todo_data,
+    id: repeatingEventId
+  }
+
+  if (ocurrencesType.value == 'ocurrences') {
+    re_event.end_date = dayjs(rule2.all().slice(-1)[0]).toDate()
+  } else if (ocurrencesType.value == 'untilDate') {
+    re_event.end_date = dayjs(rule.options.until).toDate()
+  } else {
+    let date = dayjs().add(15, 'year').toDate()
+    re_event.end_date = date
+  }
+
+  return re_event
+}
+
 async function saveTodo() {
   console.log(todoData.value)
   if (!todoData.value.text) return
@@ -208,6 +248,46 @@ async function saveTodo() {
     notifications.refreshDayNotifications(todoData.value.listId)
   }
   emit('saved', todoData.value)
+
+  let repeatingEventId = todoData.value.repeatingEvent
+  if (todoData.value.repeatingEvent && rule.value) {
+    let date = todoData.value
+    let re_by_date = repeatingEventStore.repeatingEventByDate[date] || {}
+    re_by_date[repeatingEventId] = true // 记录该日期下已生成了这个重复事件的实例
+
+    const re_event = generateRepeatingEvent(rule.value, repeatingEventId)
+
+    console.log(re_event)
+
+    // 更新状态
+    repeatingEventStore.updateRepeatingEvent({ key: repeatingEventId, val: re_event })
+    repeatingEventDateCacheStore.addRepeatingEventToDateCache(re_event)
+    
+    // 构造重复事件对象
+    const re_event_obj = {
+      ...re_event,
+      id: repeatingEventId  // 确保 id 字段存在
+    }
+    
+    // 构造日期关联对象
+    const re_by_date_obj = {
+      re_by_date,  // 直接使用 re_by_date 对象
+      listId: todoData.value.listId    // 添加主键
+    }
+    
+    // 更新数据库
+    repeatingEventRepository.update(repeatingEventId, re_event_obj)
+    repeatingEventByDateRepository.update(date, re_by_date_obj)
+    
+    // 生成未来3个月内的重复事件实例
+    const today = dayjs();
+    const threeMonthsLater = today.add(3, 'month');
+    let current = today.clone();
+    while (current.isBefore(threeMonthsLater)) {
+      repeatingEventHelper.generateRepeatingEventsIntances(current.format('YYYYMMDD'));
+      current = current.add(1, 'day');
+    }
+  }
 }
 
 function onTimeSelected(time) {
@@ -219,8 +299,19 @@ function toggleAlarm() {
   todoData.value.alarm = !todoData.value.alarm
 }
 
-function changeRepeatingEvent(repeatingEvent) {
+function changeRepeatingEvent(repeatingEvent, receivedRule, receivedRepeatingType, receivedOcurrencesType) {
   todoData.value.repeatingEvent = repeatingEvent;
+  rule.value = receivedRule;
+  repeatingType.value = receivedRepeatingType;
+  ocurrencesType.value = receivedOcurrencesType;
+  
+  // 如果清除了重复规则，重置相关值
+  if (!repeatingEvent) {
+    todoData.value.repeatingEvent = null;
+    rule.value = null;
+    repeatingType.value = null;
+    ocurrencesType.value = null;
+  }
 }
 
 watch(
