@@ -159,7 +159,12 @@
     })
     // 选择分类
     const selectSort = (sort) => {
-        selectedSort.value = sort
+        if ( sort.name === '不分类' ){
+            selectedSort.value = null
+        }
+        else {
+            selectedSort.value = sort 
+        }
         if (sortPopoverRef.value) sortPopoverRef.value.hide()
     }
 
@@ -169,7 +174,7 @@
 
     const completedTodos = computed(() => {
         if (selectedSort.value) {
-            return currentDayTodos.value.filter(todo => todo.checked && todo.sort.name === selectedSort.value.name)
+            return currentDayTodos.value.filter(todo => todo.checked && todo.sort && todo.sort.name === selectedSort.value.name)
         } else {
             return currentDayTodos.value.filter(todo => todo.checked)
         }
@@ -177,7 +182,7 @@
 
     const uncompletedTodos = computed(() => {
         if (selectedSort.value) {
-            return currentDayTodos.value.filter(todo => !todo.checked && todo.sort.name === selectedSort.value.name)
+            return currentDayTodos.value.filter(todo => !todo.checked && todo.sort && todo.sort.name === selectedSort.value.name)
         } else {
             return currentDayTodos.value.filter(todo => !todo.checked)
         }

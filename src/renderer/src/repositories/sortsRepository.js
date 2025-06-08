@@ -8,7 +8,7 @@ export default {
     } else {
       let default_sortsStore = {
         sorts: [
-          {name: '未分类', color: "#f5f3f4"}, // 用作测试
+          {name: '不分类', color: "#808080"}, // 用作测试
           {name: '工作', color: "#f3722c"},
           {name: '学习', color: "#f8961e"},
           {name: '娱乐', color: "#f9844a"},

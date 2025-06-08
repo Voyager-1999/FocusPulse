@@ -3,7 +3,7 @@
     <!-- 1. 顶部 -->
     <div class="header">
       <div class="sort-ellipse" :style="{ background: selectedSort.color || '#dcdfe6', color: selectedSort.color ? '#fff' : '#606266' }">
-        {{ selectedSort.name || '未分类' }}
+        {{ selectedSort.name || '不分类' }}
       </div>
       <el-popover v-model:visible="showSortPopover" placement="bottom" width="200">
         <template #reference>
@@ -149,8 +149,12 @@ const todoData = ref({
   time: null
 })
 
-const selectedSort = computed(() => todoData.value.sort || { name: '未分类', color: '' })
-
+const selectedSort = computed(() => {
+  if (!todoData.value.sort) {
+    return { name: '不分类', color: '#808080' };
+  }
+  return todoData.value.sort;
+})
 const start_isToday = computed(() => todoData.value.startDate === dayjs().format('YYYYMMDD'))
 const start_isTomorrow = computed(() => todoData.value.startDate === dayjs().add(1, 'day').format('YYYYMMDD'))
 const due_isToday = computed(() => todoData.value.dueDate === dayjs().format('YYYYMMDD'))
@@ -173,7 +177,12 @@ onMounted(() => {
 })
 
 function selectSort(sort) {
-  todoData.value.sort = sort
+  // 如果选择的是"不分类"，则将sort设置为null
+  if (sort.name === '不分类') {
+    todoData.value.sort = null;
+  } else {
+    todoData.value.sort = sort;
+  }
   showSortPopover.value = false
 }
 function setStartToday() {
