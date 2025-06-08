@@ -70,14 +70,6 @@
                     @change="configStore.updateConfig('notificationOnStartup', config.notificationOnStartup)"
                 ></el-switch>
             </div>
-            <!-- <div>
-                <span>通知显示器：</span>
-                <el-switch
-                    v-model="config.notificationIndicator"
-                    size="small"
-                    @change="configStore.updateConfig('notificationIndicator', config.notificationIndicator)"
-                ></el-switch>
-            </div> -->
             <div>
                 <span>通知声音：</span>
                 <el-select v-model="config.notificationSound" 

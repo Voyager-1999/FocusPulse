@@ -12,7 +12,7 @@ export default {
         localStorage.clear();
     },
     as_json(){ //将 localStorage 中的所有键值对以 JSON 对象的形式返回
-        var values = {}, keys = Object.keys(localStorage), i = keys.length;
+        let values = {}, keys = Object.keys(localStorage), i = keys.length;
         while (i--) {
             values[keys[i]] = localStorage.getItem(keys[i]);
         }

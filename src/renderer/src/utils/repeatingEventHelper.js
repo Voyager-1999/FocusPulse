@@ -1,10 +1,8 @@
 import { useRepeatingEventStore } from "../store/repeatingEvent.store";
 import { useRepeatingEventDateCacheStore } from "../store/repeatingEventDateCache.store";
 import { useTodoListStore } from "../store/todoList.store";
-import toDoListRepository from "../repositories/toDoListRepository";
 import dbRepository from "../repositories/dbRepository";
 import dayjs from "dayjs";
-import tasksHelper from "./tasksHelper";
 import repeatingEventByDateRepository from "../repositories/repeatingEventByDateRepository";
 
 export default {

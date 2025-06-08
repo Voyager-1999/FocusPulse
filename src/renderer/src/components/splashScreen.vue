@@ -92,16 +92,13 @@ defineExpose({
 
 .splash-screen h1 {
   color: #3f0e81;
+  letter-spacing: 3px;
+  font-size: 3rem;
+  margin-bottom: 10px;
 }
 
 .dark-theme .splash-screen h1 {
   color: #5329a3;
-}
-
-.splash-screen h1 {
-  letter-spacing: 3px;
-  font-size: 3rem;
-  margin-bottom: 10px;
 }
 
 .splash-screen span {
@@ -110,12 +107,6 @@ defineExpose({
   letter-spacing: 0.4rem;
   color: #79606b;
   margin-bottom: 20px;
-}
-
-.sponsor {
-  margin-top: 10px;
-  font-size: 0.8rem;
-  color: #bababa;
 }
 
 .dark-theme .splash-screen span {

@@ -60,8 +60,8 @@
         </div>
 
         <div class="d-flex align-items-center justify-content-between re-input">
-          <label class="opacity-50">间隔</label>
-          <input type="number" class="form-control lex-shrink-1 counter" v-model="interval" :disabled="repeatingEvent" />
+          <label for="interval-input" class="opacity-50">间隔</label>
+          <input id="interval-input" type="number" class="form-control lex-shrink-1 counter" v-model="interval" :disabled="repeatingEvent" />
         </div>
 
         <select
@@ -215,76 +215,85 @@ function repeatingEventRule() {
   return new RRule(ruleOptions)
 }
 
-// Watch
+function handleWeekdays(rule) {
+  if (!rule.options.byweekday) return false;
+  
+  rule.options.byweekday.forEach(day => {
+    switch(day) {
+      case 0: weekdays.mon = true; break;
+      case 1: weekdays.tue = true; break;
+      case 2: weekdays.wed = true; break;
+      case 3: weekdays.thu = true; break;
+      case 4: weekdays.fri = true; break;
+      case 5: weekdays.sat = true; break;
+      case 6: weekdays.sun = true; break;
+    }
+  });
+  
+  return isWorkdayRule(rule.options.byweekday);
+}
+
+function isWorkdayRule(byweekday) {
+  return byweekday.length === 5 && 
+    byweekday.includes(0) && 
+    byweekday.includes(1) && 
+    byweekday.includes(2) && 
+    byweekday.includes(3) && 
+    byweekday.includes(4);
+}
+
+function handleOccurrences(rule) {
+  if (rule.options.count) {
+    ocurrencesType.value = 'ocurrences';
+    ocurrences.value = rule.options.count;
+  } else if (rule.options.until) {
+    ocurrencesType.value = 'untilDate';
+    untilDate.value = dayjs(rule.options.until).format('YYYY-MM-DD');
+  } else {
+    ocurrencesType.value = '';
+    ocurrences.value = 1;
+    untilDate.value = '';
+  }
+}
+
 watch(
   [() => props.repeatingEvent, () => props.rule],
   ([newRepeatingEvent, newRule]) => {
-    // 优先使用传入的 rule，如果没有则从 store 中获取
-    let re = newRule ? { repeating_rule: newRule.toString() } : repeatingEventStore.repeatingEventList[newRepeatingEvent]
-    weekdays.mon = weekdays.tue = weekdays.wed = weekdays.thu = weekdays.fri = weekdays.sat = weekdays.sun = false
+    let re = newRule ? { repeating_rule: newRule.toString() } : repeatingEventStore.repeatingEventList[newRepeatingEvent];
+    weekdays.mon = weekdays.tue = weekdays.wed = weekdays.thu = weekdays.fri = weekdays.sat = weekdays.sun = false;
     
     if (re) {
-      const rule = rrulestr(re.repeating_rule)
-      repeatingType.value = rule.options.freq
-      interval.value = rule.options.interval || 1
+      const rule = rrulestr(re.repeating_rule);
+      repeatingType.value = rule.options.freq;
+      interval.value = rule.options.interval || 1;
       
-      // 处理重复次数和结束日期
-      if (rule.options.count) {
-        ocurrencesType.value = 'ocurrences'
-        ocurrences.value = rule.options.count
-      } else if (rule.options.until) {
-        ocurrencesType.value = 'untilDate'
-        untilDate.value = dayjs(rule.options.until).format('YYYY-MM-DD')
-      } else {
-        ocurrencesType.value = ''
-        ocurrences.value = 1
-        untilDate.value = ''
+      handleOccurrences(rule);
+      
+      if (handleWeekdays(rule)) {
+        repeatingType.value = 4; // 工作日
+      } else if (rule.options.byweekday) {
+        repeatingType.value = 5; // 自定义工作日
       }
 
-      // 处理工作日规则
-      if (rule.options.byweekday) {
-        rule.options.byweekday.forEach(day => {
-          switch(day) {
-            case 0: weekdays.mon = true; break;
-            case 1: weekdays.tue = true; break;
-            case 2: weekdays.wed = true; break;
-            case 3: weekdays.thu = true; break;
-            case 4: weekdays.fri = true; break;
-            case 5: weekdays.sat = true; break;
-            case 6: weekdays.sun = true; break;
-          }
-        })
-        
-        // 如果是工作日规则，设置为自定义工作日类型
-        if (rule.options.byweekday.length === 5 && 
-            rule.options.byweekday.includes(0) && 
-            rule.options.byweekday.includes(1) && 
-            rule.options.byweekday.includes(2) && 
-            rule.options.byweekday.includes(3) && 
-            rule.options.byweekday.includes(4)) {
-          repeatingType.value = 4 // 工作日
-        } else {
-          repeatingType.value = 5 // 自定义工作日
-        }
-      }
-
-      // 处理每月指定日期规则
-      if (rule.options.bymonthday && rule.options.bymonthday.length > 0) {
-        repeatingType.value = 6
-        daysOfMonth.value = rule.options.bymonthday.join(',')
+      if (rule.options.bymonthday?.length > 0) {
+        repeatingType.value = 6;
+        daysOfMonth.value = rule.options.bymonthday.join(',');
       }
     } else {
-      // 重置所有值
-      repeatingType.value = ''
-      ocurrencesType.value = ''
-      daysOfMonth.value = ''
-      interval.value = 1
-      untilDate.value = ''
-      ocurrences.value = 1
+      resetValues();
     }
   },
   { immediate: true }
 )
+
+function resetValues() {
+  repeatingType.value = '';
+  ocurrencesType.value = '';
+  daysOfMonth.value = '';
+  interval.value = 1;
+  untilDate.value = '';
+  ocurrences.value = 1;
+}
 
 let dropdownInstance = null
 

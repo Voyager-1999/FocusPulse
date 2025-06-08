@@ -20,7 +20,7 @@
 
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref } from 'vue'
 import todoItem from './todoItem.vue'
 import { ArrowDown, ArrowRight } from '@element-plus/icons-vue'
 import moment from 'moment'

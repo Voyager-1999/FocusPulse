@@ -130,7 +130,6 @@ function loadWeatherInfo() {
         console.error('获取天气信息失败：', err)
         return
       }
-      // console.log('天气信息：', data);
       weatherData.value = data
     });
   })
@@ -218,12 +217,6 @@ async function moveOldTasksToToday() {
             // 移动未完成的待办事项到今天
             await TodoListStore.moveUndoneItems(listId, todayListId);
         }
-
-        // 如果启用了自动重排序，则对今天的待办进行重排序
-        // if (configStore.config.autoReorderTasks) {
-        //     // TODO: 实现重排序逻辑
-        //     // 这里需要实现 tasksHelper.reorderTasksList 的等效功能
-        // }
 
         return "done!";
     } catch (error) {
@@ -369,6 +362,7 @@ font-size: 16px;
 font-weight: 600;
 margin: 0;
 background: linear-gradient(45deg, #3498db, #2ecc71);
+background-clip: text;
 -webkit-background-clip: text;
 -webkit-text-fill-color: transparent;
 }
@@ -382,33 +376,51 @@ padding: 0 10px;
 }
 
 .nav-link {
-display: flex;
-align-items: center;
-gap: 8px;
-padding: 8px 12px;
-color: #ecf0f1;
-text-decoration: none;
-border-radius: 6px;
-transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  color: #ecf0f1;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .nav-link:hover {
-background-color: rgba(255, 255, 255, 0.1);
-transform: translateX(4px);
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
 }
 
 .nav-link.router-link-active {
-background-color: #3498db;
-color: white;
+  background-color: #3498db;
+  color: white;
 }
 
 .nav-link .el-icon {
-font-size: 16px;
+  font-size: 16px;
 }
 
 .nav-link span {
-font-size: 13px;
-font-weight: 500;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #3498db;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.nav-link:hover::after {
+  transform: scaleX(1);
 }
 
 .nav-footer {
@@ -458,28 +470,6 @@ display: none;
 .content {
 margin-left: 56px;
 }
-}
-
-/* 动画效果 */
-.nav-link {
-position: relative;
-overflow: hidden;
-}
-
-.nav-link::after {
-content: '';
-position: absolute;
-bottom: 0;
-left: 0;
-width: 100%;
-height: 2px;
-background-color: #3498db;
-transform: scaleX(0);
-transition: transform 0.3s ease;
-}
-
-.nav-link:hover::after {
-transform: scaleX(1);
 }
 
 /* 自定义滚动条 */

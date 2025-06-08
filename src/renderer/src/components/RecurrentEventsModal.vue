@@ -185,9 +185,7 @@ function showModal() {
 
 onMounted(() => {
   const modalElement = document.getElementById('RecurrentEventsModal');
-  if (modalElement) {
-    const modal = new Modal(modalElement);
-  } else {
+  if (!modalElement) {
     console.error('Modal element not found');
   }
 });

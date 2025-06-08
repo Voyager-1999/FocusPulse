@@ -21,8 +21,11 @@ nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
   perMachine: false
-  deleteAppDataOnUninstall: true
+  deleteAppDataOnUninstall: false
   include: build/installer.nsh
+  menuCategory: true
+  displayLanguageSelector: true
+  unicode: true
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:

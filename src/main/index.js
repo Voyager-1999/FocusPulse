@@ -3,7 +3,6 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import WavPlayer from 'node-wav-player'
-import { func } from 'vue-types'
 
 function createWindow() {
   // Create the browser window.
@@ -122,7 +121,6 @@ function isWindowsVisible(event) {
 function showCurrentWindow(event) {
   const webContents = event.sender;
   const win = BrowserWindow.fromWebContents(webContents);
-  // if (config.get("isMaximized")) mainWindow.maximize();
   showWindow(win);
 }
 
