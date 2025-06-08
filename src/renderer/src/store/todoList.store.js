@@ -66,8 +66,14 @@ export const useTodoListStore = defineStore('TodoList', {
                 const db_req = dbRepository.open();
                 db_req.onsuccess = (event) => {
                     const db = event.target.result;
-                    dbRepository.update(db, "todo_lists", { listId: oldTodo.listId, todos: todoList[oldTodo.listId] });
-                    dbRepository.update(db, "todo_lists", { listId: newTodo.listId, todos: todoList[newTodo.listId] });
+                    // 只有当日期不同时才更新两个列表
+                    if (oldTodo.listId !== newTodo.listId) {
+                        dbRepository.update(db, "todo_lists", { listId: oldTodo.listId, todos: todoList[oldTodo.listId] });
+                        dbRepository.update(db, "todo_lists", { listId: newTodo.listId, todos: todoList[newTodo.listId] });
+                    } else {
+                        // 如果日期相同，只更新一次
+                        dbRepository.update(db, "todo_lists", { listId: newTodo.listId, todos: todoList[newTodo.listId] });
+                    }
                     resolve();
                 };
                 db_req.onerror = () => reject(db_req.error);

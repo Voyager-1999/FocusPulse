@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: focuspulse
+appId: com.focuspulse.app
+productName: FocusPulse
 directories:
   buildResources: build
 files:
@@ -22,10 +22,14 @@ nsis:
   allowToChangeInstallationDirectory: true
   perMachine: false
   deleteAppDataOnUninstall: false
-  include: build/installer.nsh
   menuCategory: true
   displayLanguageSelector: true
   unicode: true
+  installerLanguages: ['zh_CN']
+  language: 2052
+  allowElevation: true
+  runAfterFinish: true
+  differentialPackage: false
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:

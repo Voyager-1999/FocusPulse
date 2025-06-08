@@ -135,12 +135,18 @@ function createNotification(_, options) {
 }
 
 function playSound(_, soundName) {
-  const appPath = is.dev ? __dirname : app.getPath('exe')
-  // 在开发环境中使用相对路径，在生产环境中使用 resources 目录
-  const soundPath = is.dev 
-    ? join(__dirname, '../../resources/sounds', soundName)
-    : join(appPath, '../resources/sounds', soundName)
+  let soundPath
+  if (is.dev) {
+    soundPath = join(__dirname, '../../resources/sounds', soundName)
+  } else {
+    // 在生产环境中，使用 app.getAppPath() 获取应用程序根目录
+    const appPath = app.getAppPath()
+    soundPath = join(appPath, 'resources/resources/sounds', soundName)
+  }
   console.log('Playing sound from path:', soundPath)
+  console.log('App path:', app.getPath('exe'))
+  console.log('App directory:', app.getAppPath())
+  console.log('User data:', app.getPath('userData'))
   WavPlayer.play({
     path: soundPath,
     sync: true

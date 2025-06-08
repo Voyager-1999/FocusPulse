@@ -13,9 +13,10 @@
     </div>
 
     <ul
-      v-if="showDropdown"
-      class="dropdown-menu color-picker-dropdown"
+      v-show="showDropdown"
+      class="time-picker-dropdown"
       aria-labelledby="btnTaskTimePicker"
+      style="display: none;"
     >
       <div class="d-flex align-items-center mx-3">
         <input
@@ -34,146 +35,99 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from "vue";
 
-// 定义 props
 const props = defineProps({
-  time: {
-    required: true,
-    type: [String, null]
-  }
-})
+  time: { required: true, type: [String, null] },
+});
 
-// 定义 emits
-const emit = defineEmits(['timeSelected'])
+const emit = defineEmits(["timeSelected"]);
 
-// 响应式数据
-const selectedTime = ref('')
-const showDropdown = ref(false)
+const selectedTime = ref(props.time || "");
+const showDropdown = ref(false);
 
-// 方法
 const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value
-}
+  console.log('Toggle clicked, current state:', showDropdown.value);
+  showDropdown.value = !showDropdown.value;
+  console.log('New state:', showDropdown.value);
+  
+  if (showDropdown.value) {
+    // 获取按钮位置
+    const button = document.getElementById('btnTaskTimePicker');
+    const dropdown = document.querySelector('.time-picker-dropdown');
+    if (button && dropdown) {
+      const rect = button.getBoundingClientRect();
+      dropdown.style.display = 'block';
+      dropdown.style.top = `${rect.bottom + 4}px`;
+      dropdown.style.left = `${rect.left}px`;
+    }
+  } else {
+    const dropdown = document.querySelector('.time-picker-dropdown');
+    if (dropdown) {
+      dropdown.style.display = 'none';
+    }
+  }
+};
 
 const selectTime = (time) => {
-  emit('timeSelected', time)
-  showDropdown.value = false
-}
+  emit("timeSelected", time);
+  showDropdown.value = false;
+};
 
 const clearTime = () => {
-  selectedTime.value = null
-  selectTime(selectedTime.value)
-}
+  selectedTime.value = null;
+  selectTime(selectedTime.value);
+};
 
-// 点击外部关闭下拉菜单
-const handleClickOutside = (event) => {
-  const dropdown = document.querySelector('.color-picker-dropdown')
-  const trigger = document.querySelector('.header-menu-icons')
-  if (dropdown && trigger && !dropdown.contains(event.target) && !trigger.contains(event.target)) {
-    showDropdown.value = false
+watch(
+  () => props.time,
+  (newVal) => {
+    selectedTime.value = newVal;
   }
-}
+);
 
+// Add a watch to monitor showDropdown changes
+watch(showDropdown, (newVal) => {
+  console.log('showDropdown changed to:', newVal);
+});
+
+// 点击外部关闭下拉框
+const handleClickOutside = (event) => {
+  const dropdown = document.querySelector('.time-picker-dropdown');
+  const button = document.getElementById('btnTaskTimePicker');
+  if (dropdown && button && !dropdown.contains(event.target) && !button.contains(event.target)) {
+    showDropdown.value = false;
+    dropdown.style.display = 'none';
+  }
+};
+
+// 添加和移除点击外部事件监听
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
+  document.addEventListener('click', handleClickOutside);
+});
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
-
-// 监听 props 变化
-watch(() => props.time, (newVal) => {
-  selectedTime.value = newVal
-}, { immediate: true })
+  document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <style scoped lang="scss">
-// Variables
-$black-bg-color: #21262d;
-$black-border-color: 1px solid #30363d;
-$text-color: #212529;
-$dt-text-color: #f7f7f7;
-$btn-color: #5c5c5c;
-$btn-hover-color: black;
-$btn-hover-bg-color: #f4f4f4;
-$btn-active-bg-color: #e9e9e9;
-$dt-btn-color: #ababab;
-$dt-btn-hover-color: white;
-$dt-btn-hover-bg-color: #303940;
-$dt-btn-active-bg-color: #354048;
-
-.time-picker-container {
-  position: relative;
-  display: inline-block;
-}
-
-.color-picker-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 1000;
-  min-width: 180px;
-  padding: 8px 0;
-  margin: 2px 0 0;
-  background-color: white;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-  .dark-theme & {
-    background-color: $black-bg-color;
-    border-color: $black-border-color;
-  }
-}
-
-@mixin btn-icon {
-  font-size: 1.1rem;
-  border-radius: 5px;
-  padding: 8px;
-  color: $btn-color;
-  &:hover {
-    color: $btn-hover-color;
-    background-color: $btn-hover-bg-color;
-    cursor: pointer;
-  }
-  &:active {
-    background-color: $btn-active-bg-color;
-  }
-  .dark-theme & {
-    color: $dt-btn-color;
-
-    &:hover {
-      color: $dt-btn-hover-color;
-      background-color: $dt-btn-hover-bg-color;
-    }
-
-    &:active {
-      background-color: $dt-btn-active-bg-color;
-    }
-  }
-}
+@use "/src/assets/style/globalVars.scss" as *;
 
 .header-menu-icons {
   margin-left: 6px;
-  @include btn-icon;
+  @include btn-icon; // 引用 globalVars.scss 中定义的 btn-icon mixin
 }
 
 .bi-trash {
-  margin: 0;
-  padding: 8px;
-}
-
-.d-flex.align-items-center {
-  padding: 0 8px;
+  margin: 0px;
 }
 
 input[type="time"] {
   background-color: transparent;
   border: none;
   font-size: 16px;
-  width: 120px;
+  width: 130px;
   outline: unset;
   height: 40px;
 }
@@ -183,6 +137,7 @@ input[type="time"]::-webkit-datetime-edit-text {
 }
 
 input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+  /*display: block;*/
   padding: 8px 2px 8px 2px;
   border: none;
 }
@@ -231,5 +186,28 @@ input[type="time"]::-webkit-datetime-edit-ampm-field:focus {
     border: 2px solid white;
     color: white;
   }
+}
+
+.time-picker-container {
+  position: relative;
+  display: inline-block;
+  z-index: 2001;
+}
+
+.time-picker-dropdown {
+  position: fixed;
+  transform: translateY(0);
+  background: white;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+  padding: 8px 0;
+  min-width: 200px;
+  z-index: 2002;
+}
+
+.dark-theme .time-picker-dropdown {
+  background: #303940;
+  border-color: #4c4c4c;
 }
 </style>

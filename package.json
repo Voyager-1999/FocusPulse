@@ -84,7 +84,8 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "perMachine": false
+      "perMachine": false,
+      "warningsAsErrors": false
     },
     "mac": {
       "target": "dmg",
