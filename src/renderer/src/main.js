@@ -18,6 +18,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import "./assets/style/globalVars.scss"
 import "./assets/style/main.scss"
 import "./assets/style/uiComponents.scss"
+import draggable from 'vuedraggable'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -26,6 +27,8 @@ app.config.globalProperties.$bootstrap = bootstrap
 app.use(ElementPlus, {
     locale: zhCn,
   })
+app.component('draggable', draggable)
+
 app.use(router)
 app.use(pinia)
 app.mount('#app')
