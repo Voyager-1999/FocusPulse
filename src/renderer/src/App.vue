@@ -34,7 +34,7 @@
           </RouterLink>
           <RouterLink to="/ClassSchedule" class="nav-link">
             <el-icon><Calendar /></el-icon>
-            <span>课程表</span>
+            <span>日程表</span>
           </RouterLink>
           <RouterLink :to="{name: 'DataAnalysis'}" class="nav-link">
             <el-icon><DataLine /></el-icon>
