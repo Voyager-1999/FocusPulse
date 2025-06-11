@@ -96,37 +96,62 @@
       </div>
     </div>
 
-    <!-- 历史记录 -->
-    <div class="history-section">
-      <h2>历史记录</h2>
-      <button id="showHistoryBtn" @click="toggleHistory">
-        {{ showHistory ? '隐藏历史记录' : '显示历史记录' }}
+<div class="history-section">
+  <h2>历史记录</h2>
+  <!-- 在 <h2>历史记录</h2> 旁边加选择器 -->
+<div style="display: flex; align-items: center; gap: 1rem;">
+  <h2 style="margin: 0;">历史记录</h2>
+  <select v-model="historyDays" style="height: 2rem;">
+    <option :value="3">近三天</option>
+    <option :value="7">近七天</option>
+    <option :value="15">近十五天</option>
+    <option :value="0">全部</option>
+  </select>
+</div>
+  <button id="showHistoryBtn" @click="toggleHistory">
+    {{ showHistory ? '隐藏历史记录' : '显示历史记录' }}
+  </button>
+  <div v-show="showHistory">
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>选择</th>
+          <th>任务</th>
+          <th>时间</th>
+          <th>类型</th>
+          <th>专注时长</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="record in [...history].reverse()" :key="record.time + record.task">
+          <td>
+            <input
+              type="checkbox"
+              :value="record.time + record.task"
+              v-model="selectedHistory"
+            />
+          </td>
+          <td class="border px-2 py-1">{{ record.task }}</td>
+          <td class="border px-2 py-1">{{ record.time }}</td>
+          <td class="border px-2 py-1">{{ record.type }}</td>
+          <td class="border px-2 py-1">
+            <span v-if="record.type === '工作'">{{ record.duration }} 分钟</span>
+            <span v-else>-</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="text-align: right; margin-top: 1rem;">
+      <button
+        v-if="selectedHistory.length > 0"
+        @click="deleteSelectedHistory"
+        style="background-color: #e57373; color: #fff;"
+      >
+        删除所选历史记录
       </button>
-      <div v-show="showHistory">
-      <table class="history-table">
-        <thead>
-          <tr>
-            <th>任务</th>
-            <th>时间</th>
-            <th>类型</th>
-            <th>专注时长</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="record in [...history].reverse()" :key="record.time + record.task">
-            <td class="border px-2 py-1">{{ record.task }}</td>
-            <td class="border px-2 py-1">{{ record.time }}</td>
-            <td class="border px-2 py-1">{{ record.type }}</td>
-            <td class="border px-2 py-1">
-              <!-- 只显示工作类型的专注时长 -->
-              <span v-if="record.type === '工作'">{{ record.duration }} 分钟</span>
-              <span v-else>-</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      </div>
     </div>
+  </div>
+</div>
 
     <!-- 通知 -->
     <div v-if="notification" class="notification">
@@ -261,6 +286,21 @@ function showNotification(msg) {
   setTimeout(() => notification.value = '', 3000)
 }
 
+const selectedHistory = ref([])
+
+// 删除所选历史记录
+function deleteSelectedHistory() {
+  if (selectedHistory.value.length === 0) return
+  if (!confirm('确定要删除所选历史记录吗？此操作不可恢复。')) return
+  // 只保留未被选中的历史记录
+  history.value = history.value.filter(
+    r => !selectedHistory.value.includes(r.time + r.task)
+  )
+  selectedHistory.value = []
+  saveData()
+  showNotification('已删除所选历史记录')
+}
+
 // 任务管理
 function addTask() {
   const name = taskInput.value.trim()
@@ -351,6 +391,24 @@ function loadData() {
     totalTime.value = workTime.value
   }
 }
+
+const historyDays = ref(7) // 默认显示近七天
+
+const filteredHistory = computed(() => {
+  if (historyDays.value === 0) return history.value
+  const now = new Date()
+  return history.value.filter(r => {
+    if (!r.time) return false
+    // 兼容不同日期格式
+    let [dateStr] = r.time.split(' ')
+    dateStr = dateStr.replace(/\//g, '-')
+    const parts = dateStr.split('-').map(Number)
+    if (parts.length < 3) return false
+    const recordDate = new Date(parts[0], parts[1] - 1, parts[2])
+    const diff = (now - recordDate) / (1000 * 60 * 60 * 24)
+    return diff < historyDays.value
+  })
+})
 
 onMounted(() => {
   loadData()
