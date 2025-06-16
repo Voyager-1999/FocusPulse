@@ -1,10 +1,5 @@
 <template>
   <div class="ai-assistant-view">
-    <div class="ai-header">
-      <h2>AI 助手</h2>
-      <p class="subtitle">智能对话助手</p>
-    </div>
-    
     <div class="ai-chat-container">
       <div class="message-container">
         <div 
@@ -127,10 +122,11 @@ watchEffect(() => {
 
 <style scoped>
 .ai-assistant-view {
-  padding: 20px;
-  height: 100%;
+  padding: 16px;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .ai-header {
@@ -153,20 +149,23 @@ watchEffect(() => {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  background: #f5f7fa;
-  border-radius: 8px;
-  padding: 20px;
-  height: calc(100vh - 180px);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  height: calc(100% - 32px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .message-container {
   flex-grow: 1;
   overflow-y: auto;
-  margin-bottom: 20px;
-  padding: 10px;
+  margin-bottom: 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
 }
 
 .message {
