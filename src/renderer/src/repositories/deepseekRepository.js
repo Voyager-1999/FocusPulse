@@ -58,8 +58,7 @@ export default {
           headers: {
             'Authorization': `Bearer ${API_KEY}`,
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'User-Agent': 'FocusPulse/1.0.0'
+            'Accept': 'application/json'
           },
           timeout: 30000
         }

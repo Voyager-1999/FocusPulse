@@ -113,24 +113,76 @@ onBeforeUnmount(() => {
 <style scoped>
 .todo-statistic {
   padding: 1rem;
-  background: #f9f9f9;
-  border-radius: 10px;
+  background: #ffffff;
+  border-radius: 12px;
+  margin: 0.5rem 0.5rem 1rem 0.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  height: calc(100vh - 4rem);
+  display: flex;
+  flex-direction: column;
+}
+
+.todo-statistic h2 {
+  color: #303133;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
 }
 
 .summary {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
   margin-bottom: 1rem;
-  font-size: 16px;
-  line-height: 1.8;
+  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.summary p {
+  margin: 0;
+  color: #606266;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.summary strong {
+  color: #303133;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .chart-wrapper {
-  max-width: 100%;
-  height: 300px;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  margin-bottom: 0.5rem;
 }
 
 .loading {
-  padding: 20px;
+  padding: 2rem;
   text-align: center;
-  color: #666;
+  color: #909399;
+  font-size: 0.9rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+:deep(.chartjs-render-monitor) {
+  animation: none !important;
+}
+
+:deep(.chartjs-tooltip) {
+  background: rgba(0, 0, 0, 0.8) !important;
+  border-radius: 4px !important;
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+  color: #fff !important;
 }
 </style>

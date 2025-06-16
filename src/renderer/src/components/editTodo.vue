@@ -350,41 +350,56 @@ watch(
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  padding: 16px;
-  width: 340px;
-  margin: 0 auto;
+  padding: 12px;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+  box-sizing: border-box;
 }
 
 .header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #ebeef5;
 }
 
 .sort-ellipse {
-  min-width: 50px;
-  padding: 2px 12px;
-  border-radius: 12px/50%;
+  min-width: 56px;
+  padding: 4px 12px;
+  border-radius: 16px;
   background: #dcdfe6;
   color: #606266;
   font-size: 13px;
   text-align: center;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .sort-pop-btn {
   background: #f5f7fa;
-  padding: 4px;
-  font-size: 12px;
+  padding: 6px;
+  font-size: 14px;
+  margin-right: 4px;
+  transition: all 0.2s ease;
+}
+
+.sort-pop-btn:hover {
+  background: #eef1f6;
+  color: #409eff;
 }
 
 .sort-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   align-items: stretch;
+  padding: 8px;
 }
 
 .sort-item {
@@ -394,11 +409,42 @@ watch(
   margin: 0 !important;
   text-align: left !important;
   justify-content: flex-start !important;
-  border-radius: 6px !important;
-  padding-left: 12px !important;
-  padding-right: 12px !important;
-  height: 32px !important;
-  line-height: 32px !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  height: 36px !important;
+  line-height: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-width: 1px !important;
+  font-size: 14px !important;
+  font-family: inherit !important;
+  background: #fff !important;
+  border-color: #dcdfe6 !important;
+  transition: all 0.2s ease !important;
+}
+
+.sort-item:hover {
+  background: #f5f7fa !important;
+  border-color: #c0c4cc !important;
+  transform: translateY(-1px);
+}
+
+.add-sort-btn {
+  margin-top: 4px !important;
+  color: #409eff !important;
+  border-style: dashed !important;
+  transition: all 0.2s ease !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+  justify-content: flex-start !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  height: 36px !important;
+  line-height: 20px !important;
   display: flex !important;
   align-items: center !important;
   outline: none !important;
@@ -410,91 +456,113 @@ watch(
   border-color: #dcdfe6 !important;
 }
 
-.sort-item .el-button__text {
-  width: 100% !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  font-size: 14px !important;
-  font-family: inherit !important;
+.add-sort-btn:hover {
+  background: #ecf5ff !important;
+  border-color: #409eff !important;
+  transform: translateY(-1px);
 }
 
-.add-sort-btn {
-  color: #409eff;
-  border: 1px dashed #409eff;
-  height: 32px !important;
-  line-height: 32px !important;
-  font-size: 14px !important;
+:deep(.el-popover) {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #ebeef5 !important;
 }
 
 .todo-text-input {
   font-size: 15px;
+  margin-top: 2px;
+}
+
+.todo-text-input :deep(.el-input__wrapper) {
+  padding: 0px, 2px;
+  min-height: 42px;
 }
 
 .todo-desc-input {
-  font-size: 13px;
+  font-size: 14px;
+}
+
+.todo-desc-input :deep(.el-input__wrapper) {
+  padding: 0px, 2px;
+  min-height: 38px;
 }
 
 .startDate-row, .Date-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
+  padding: 2px 0;
+}
 
-  span {
-    min-width: 56px;
-    white-space: nowrap;
-  }
+.startDate-row span, .Date-row span {
+  min-width: 60px;
+  white-space: nowrap;
+  color: #606266;
 }
 
 .startDate-row .el-button, .Date-row .el-button {
-  padding: 4px 8px;
+  padding: 4px 12px;
   font-size: 12px;
-  height: 24px;
+  height: 26px;
   line-height: 1;
+  margin: 4px;
+}
+
+.startDate-row .el-button:last-child, .Date-row .el-button:last-child {
+  margin-right: 0;
 }
 
 .date-picker {
-  width: 100px;
+  width: 110px;
 }
 
 .subtodo-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-bottom: 4px;
+  margin: 2px 0;
+  max-height: 180px;
+  overflow-y: auto;
 }
 
 .subtodo-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   font-size: 13px;
+  padding: 1px 0;
 }
 
 .subtodo-done {
   text-decoration: line-through;
-  color: #bfbfbf;
+  color: #909399;
 }
 
 .subtodo-input {
   font-size: 13px;
+  margin-top: 2px;
+}
+
+.subtodo-input :deep(.el-input__wrapper) {
+  padding: 0px, 2px;
+  min-height: 36px;
 }
 
 .save-btn {
   width: 100%;
   margin-top: 4px;
-  height: 32px;
+  height: 34px;
   font-size: 14px;
+  font-weight: 500;
 }
 
 .subtodo-delete-btn {
   margin-left: 4px;
   color: #f56c6c;
-  padding: 0 2px;
-  font-size: 12px;
+  padding: 4px;
+  font-size: 14px;
 }
 
 .subtodo-delete-btn:hover {
@@ -505,23 +573,26 @@ watch(
   display: flex;
   align-items: center;
   margin-left: auto;
+  margin-right: 8px;
 }
 
 .alarm {
   display: flex;
   align-items: center;
+  margin-right: 8px;
 }
 
 .header-menu-icons {
-  font-size: 1.1rem;
-  border-radius: 5px;
+  font-size: 1.2rem;
+  border-radius: 6px;
   padding: 8px;
-  color: #5c5c5c;
+  color: #606266;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .header-menu-icons:hover {
-  color: black;
+  color: #303133;
   background-color: #f4f4f4;
 }
 
@@ -530,15 +601,47 @@ watch(
 }
 
 .dark-theme .header-menu-icons {
-  color: #ababab;
+  color: #909399;
 }
 
 .dark-theme .header-menu-icons:hover {
-  color: white;
+  color: #ffffff;
   background-color: #303940;
 }
 
 .dark-theme .header-menu-icons:active {
   background-color: #354048;
+}
+
+/* 滚动条样式 */
+.subtodo-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.subtodo-list::-webkit-scrollbar-thumb {
+  background-color: #dcdfe6;
+  border-radius: 3px;
+}
+
+.subtodo-list::-webkit-scrollbar-track {
+  background-color: #f5f7fa;
+}
+
+:deep(.el-dialog) {
+  width: 480px !important;
+  height: 600px !important;
+  margin: 0 !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+}
+
+:deep(.el-dialog__body) {
+  flex: 1;
+  padding: 0 !important;
+  overflow: hidden;
 }
 </style>

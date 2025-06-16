@@ -110,16 +110,20 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 10px;
   position: relative;
   cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  border-radius: 8px;
+  transition: all 0.3s ease;
   margin: 0 -10px;
+  padding: 12px 10px;
+  border: 1px solid transparent;
 }
 
 .todo-item-root:hover {
   background-color: #f5f7fa;
+  border-color: #e4e7ed;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
 }
 
 .main-checkbox {
@@ -130,89 +134,119 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .todo-text {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   color: #303133;
   word-break: break-all;
+  line-height: 1.5;
+  transition: color 0.3s ease;
 }
 
 .todo-desc {
   font-size: 13px;
-  color: #909399;
+  color: #606266;
   margin-top: 2px;
   word-break: break-all;
+  line-height: 1.4;
+  transition: color 0.3s ease;
 }
 
 .todo-done {
   text-decoration: line-through;
-  color: #bfbfbf !important;
+  color: #c0c4cc !important;
 }
 
 .todo-time {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 13px;
+  gap: 6px;
+  font-size: 12px;
   color: #909399;
-  margin-top: 2px;
+  margin-top: 4px;
+  padding: 2px 8px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+  width: fit-content;
 }
 
 .todo-time i {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .todo-done + .todo-time {
-  color: #bfbfbf;
+  color: #c0c4cc;
+  background-color: #f5f7fa;
 }
 
 .subtodo-toggle-row {
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .subtodo-list {
-  margin-top: 4px;
-  padding-left: 8px;
+  margin-top: 6px;
+  padding-left: 12px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  border-left: 2px solid #e4e7ed;
 }
 
 .subtodo-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   color: #606266;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.subtodo-item:hover {
+  background-color: #f5f7fa;
 }
 
 .subtodo-done {
   text-decoration: line-through;
-  color: #bfbfbf;
+  color: #c0c4cc;
 }
 
 .delete-btn {
   position: absolute;
-  right: 0;
-  top: 6px;
-  color: #f56c6c;
+  right: 8px;
+  top: 8px;
+  color: #909399;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.todo-item-root:hover .delete-btn {
+  opacity: 1;
 }
 
 .delete-btn:hover {
-  color: #ff0000;
+  color: #f56c6c;
+  transform: scale(1.1);
 }
 
 /* 选中时 */
 :deep(.main-checkbox.is-checked .el-checkbox__inner) {
   border-color: v-bind(mainColor) !important;
   background-color: v-bind(mainColor) !important;
+  box-shadow: 0 0 0 2px rgba(v-bind(mainColor), 0.1);
 }
 
 /* 未选中时 */
 :deep(.main-checkbox .el-checkbox__inner) {
   border-color: v-bind(mainColor) !important;
+  transition: all 0.3s ease;
+}
+
+:deep(.main-checkbox:hover .el-checkbox__inner) {
+  box-shadow: 0 0 0 2px rgba(v-bind(mainColor), 0.1);
 }
 </style>

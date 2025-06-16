@@ -194,14 +194,27 @@ const computedStore = computed(() => {
     gap: 0;
     align-items: stretch;
     flex-shrink: 0;
+    width: 100%;
 }
 
 .quick-input {
-    width: 540px;
+    width: 100%;
     height: 44px;
-    font-size: 16px;
+    font-size: 15px;
     margin-bottom: 8px;
     border-radius: 8px;
+}
+
+.quick-input :deep(.el-input__wrapper) {
+    height: 44px;
+    padding: 0 12px;
+    width: 100%;
+}
+
+.quick-input :deep(.el-input__inner) {
+    height: 44px;
+    line-height: 44px;
+    width: 100%;
 }
 
 .main-container {

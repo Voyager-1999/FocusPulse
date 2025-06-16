@@ -137,7 +137,6 @@ input[type="time"]::-webkit-datetime-edit-text {
 }
 
 input[type="time"]::-webkit-datetime-edit-fields-wrapper {
-  /*display: block;*/
   padding: 8px 2px 8px 2px;
   border: none;
 }

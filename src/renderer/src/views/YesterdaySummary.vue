@@ -71,23 +71,45 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .yesterday-summary {
-  padding: 1rem;
-  background: #f8f9fa;
+  padding: 1.25rem;
+  background: #ffffff;
   border-radius: 12px;
-  margin: 1rem;
+  margin: 0.75rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
   transition: all 0.3s ease;
 }
 
+.yesterday-summary h2 {
+  color: #303133;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+}
+
 .summary-card {
-  background: #ffffff;
-  padding: 1.2rem;
+  background: #f8f9fa;
+  padding: 1.25rem;
   border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
-  font-size: 1.1rem;
-  min-height: 120px;
+  font-size: 1rem;
+  min-height: 100px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  gap: 0.75rem;
+}
+
+.summary-card p {
+  margin: 0;
+  color: #606266;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.summary-card strong {
+  color: #303133;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .loading {
@@ -95,5 +117,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   align-items: center;
   height: 100%;
+  color: #909399;
+  font-size: 0.9rem;
 }
 </style>

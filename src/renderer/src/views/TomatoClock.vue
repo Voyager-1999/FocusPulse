@@ -79,16 +79,16 @@
       <h2>设置</h2>
       <div class="settings-form">
         <div class="setting-item">
-          <label>工作时间(分钟):</label>
-          <input type="number" min="1" v-model.number="workTimeInput">
+          <label for="workTime">工作时间(分钟):</label>
+          <input id="workTime" type="number" min="1" v-model.number="workTimeInput">
         </div>
         <div class="setting-item">
-          <label>短休息(分钟):</label>
-          <input type="number" min="1" v-model.number="shortBreakInput">
+          <label for="shortBreak">短休息(分钟):</label>
+          <input id="shortBreak" type="number" min="1" v-model.number="shortBreakInput">
         </div>
         <div class="setting-item">
-          <label>长休息(分钟):</label>
-          <input type="number" min="1" v-model.number="longBreakInput">
+          <label for="longBreak">长休息(分钟):</label>
+          <input id="longBreak" type="number" min="1" v-model.number="longBreakInput">
         </div>
         <div>
           <button id="saveSettingsBtn" @click="saveSettings">保存设置</button>
@@ -98,19 +98,17 @@
 
 <div class="history-section">
   <h2>历史记录</h2>
-  <!-- 在 <h2>历史记录</h2> 旁边加选择器 -->
-<div style="display: flex; align-items: center; gap: 1rem;">
-  <h2 style="margin: 0;">历史记录</h2>
-  <select v-model="historyDays" style="height: 2rem;">
-    <option :value="3">近三天</option>
-    <option :value="7">近七天</option>
-    <option :value="15">近十五天</option>
-    <option :value="0">全部</option>
-  </select>
-</div>
-  <button id="showHistoryBtn" @click="toggleHistory">
-    {{ showHistory ? '隐藏历史记录' : '显示历史记录' }}
-  </button>
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+    <select v-model="historyDays" style="height: 2rem;">
+      <option :value="3">近三天</option>
+      <option :value="7">近七天</option>
+      <option :value="15">近十五天</option>
+      <option :value="0">全部</option>
+    </select>
+    <button id="showHistoryBtn" @click="toggleHistory">
+      {{ showHistory ? '隐藏历史记录' : '显示历史记录' }}
+    </button>
+  </div>
   <div v-show="showHistory">
     <table class="history-table">
       <thead>
@@ -166,7 +164,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 // 状态
 const workTime = ref(25 * 60)
@@ -269,7 +267,7 @@ function timerFinished() {
     totalTime.value = workTime.value
     isWorking.value = true
     showNotification('休息时间结束，准备开始工作！')
-    // 不自动开始工作，等待用户点击“开始”
+    // 不自动开始工作，等待用户点击"开始"
     isRunning.value = false
     clearInterval(timer)
   }
@@ -437,22 +435,22 @@ body {
     background: linear-gradient(135deg, #EBE5D0 0%, #DBD8CF 100%);
     min-height: 100vh;
     margin: 0;
-    padding: 0; /* ← 这里改为0，避免body撑不满窗口 */
-    /* 不要加display:flex，不要加align-items/justify-content */
-    overflow-y: auto; /* ← 允许页面滚动 */
+    padding: 0 0 2rem 0;  /* 添加底部内边距 */
+    overflow-y: auto;
 }
 
 .container {
     background-color: #FFFFFF;
     border-radius: 1rem;
-    padding: 2rem;
+    padding: 1.25rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    width: 90%;
-    max-width: 800px;
+    width: 98%;
+    max-width: 1200px;
     color: #303030;
     border: 1px solid #DBD8CF;
-    margin: 2rem auto; /* 居中显示 */
-    /* 不要设置height或max-height */
+    margin: 0.75rem auto;  /* 设置相等的上下外边距 */
+    overflow-y: auto;
+    max-height: calc(100vh - 3rem);  /* 调整最大高度，考虑上下边距 */
 }
 
 h1, h2 {
@@ -462,8 +460,8 @@ h1, h2 {
 }
 
 h1 {
-    font-size: 2.25rem;
-    margin-bottom: 1rem;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;  /* 减少标题下方间距 */
 }
 
 h2 {
@@ -475,7 +473,7 @@ h2 {
     position: relative;
     width: 300px;
     height: 300px;
-    margin: 2rem auto;
+    margin: 1rem auto;  /* 减少计时器容器的上下间距 */
 }
 
 .progress-ring {
@@ -500,21 +498,21 @@ h2 {
 .controls {
     display: flex;
     justify-content: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 0.75rem;
+    margin-bottom: 1rem;  /* 减少控制区域的下方间距 */
 }
 
 button {
-    padding: 14px 36px;
+    padding: 10px 24px;  /* 减少内边距 */
     border: none;
-    border-radius: 32px;
+    border-radius: 24px;  /* 稍微减小圆角 */
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;  /* 减小字体大小 */
     font-weight: 600;
     color: #FFFFFF;
-    min-width: 120px;
+    min-width: 100px;  /* 减小最小宽度 */
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;  /* 稍微减小字间距 */
     transition: 
         transform 0.2s ease,
         box-shadow 0.2s ease;
@@ -582,6 +580,9 @@ button:active {
 #saveSettingsBtn {
     background-color: #DBD8CF;
     color: #303030;
+    padding: 8px 16px;  /* 设置按钮更小 */
+    font-size: 13px;
+    min-width: 80px;
 }
 
 #saveSettingsBtn:hover {
@@ -591,6 +592,9 @@ button:active {
 #showHistoryBtn {
     background-color: #62928C;
     color: #FFFFFF;
+    padding: 8px 16px;  /* 历史记录按钮更小 */
+    font-size: 13px;
+    min-width: 80px;
 }
 
 #showHistoryBtn:hover {
@@ -598,8 +602,8 @@ button:active {
 }
 
 .task-section, .settings-section, .history-section {
-    margin-top: 2rem;
-    padding-top: 1rem;
+    margin-top: 1.5rem;  /* 减少各部分之间的间距 */
+    padding-top: 0.75rem;
     border-top: 1px solid #DBD8CF;
 }
 
@@ -607,6 +611,12 @@ button:active {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 1rem;
+}
+
+.task-input button {
+    padding: 8px 16px;  /* 任务输入区域的按钮更小 */
+    font-size: 13px;
+    min-width: 80px;
 }
 
 input[type="text"], input[type="number"] {
@@ -624,6 +634,7 @@ input[type="text"], input[type="number"] {
     padding: 0;
     max-height: 200px;
     overflow-y: auto;
+    margin-bottom: 1rem;
 }
 
 .task-item {
@@ -644,6 +655,12 @@ input[type="text"], input[type="number"] {
     gap: 0.5rem;
 }
 
+.task-actions button {
+    padding: 6px 12px;  /* 任务操作按钮更小 */
+    font-size: 12px;
+    min-width: 60px;
+}
+
 .settings-form {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -660,21 +677,33 @@ input[type="text"], input[type="number"] {
     min-width: 80px;
 }
 
+.history-section {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #DBD8CF;
+    margin-bottom: 1rem;  /* 添加底部边距 */
+}
+
 .history-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 1rem;
+    table-layout: fixed;
 }
 
 .history-table th, .history-table td {
     padding: 0.75rem;
     text-align: left;
     border-bottom: 1px solid #DBD8CF;
+    word-wrap: break-word;
 }
 
 .history-table th {
     background-color: #EBE5D0;
     color: #303030;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 .status {

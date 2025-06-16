@@ -21,7 +21,13 @@
 
                     </div>
                 </div>
-                <div class="sort-container">
+                <div class="controls-container">
+                    <i
+                        class="bi bi-arrow-repeat repeat-events-btn"
+                        title="重复事件"
+                        data-bs-toggle="modal"
+                        data-bs-target="#RecurrentEventsModal"
+                    ></i>
                     <el-popover
                         ref="sortPopoverRef"
                         placement="bottom-start"
@@ -81,12 +87,6 @@
                         @keyup.enter="onQuickInputEnter"
                         class="quick-input"
                     />
-                    <i
-                        class="bi bi-arrow-repeat repeat-events-btn"
-                        title="重复事件"
-                        data-bs-toggle="modal"
-                        data-bs-target="#RecurrentEventsModal"
-                    ></i>
                 </div>
                 <el-dialog v-model="showQuickEdit" :show-close="false" width="auto" align-center>
                     <editTodo :initialText="quickInput" @saved="onQuickEditSaved" />
@@ -245,19 +245,21 @@
 
 <style scoped>
 .DayToDo {
-    padding: 10px;
+    padding: 8px;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 40px); /* Subtract padding and any other spacing */
+    height: calc(100vh - 32px);
     box-sizing: border-box;
+    background-color: #fff;
 }
 
 .header {
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 8px;
     align-items: stretch;
     flex-shrink: 0;
+    padding: 0 4px;
 }
 
 .header-top {
@@ -265,7 +267,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .header-bottom {
@@ -273,7 +275,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .quick-input-container {
@@ -284,20 +286,42 @@
 }
 
 .quick-input {
-    width: 540px;
-    height: 44px;
-    font-size: 16px;
-    margin-bottom: 8px;
+    width: 100%;
+    height: 48px;
+    font-size: 15px;
+    margin-bottom: 0;
     border-radius: 8px;
 }
 
+.quick-input :deep(.el-input__wrapper) {
+    height: 48px;
+    padding: 0 12px;
+}
+
+.quick-input :deep(.el-input__inner) {
+    height: 48px;
+    line-height: 48px;
+}
+
+.controls-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .repeat-events-btn {
-    font-size: 20px;
+    font-size: 18px;
     color: #606266;
     cursor: pointer;
     padding: 8px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
 }
 
 .repeat-events-btn:hover {
@@ -310,16 +334,30 @@
 }
 
 .sort-select-btn {
-    min-width: 120px;
+    min-width: 90px;
+    width: 90px;
     justify-content: space-between;
     font-weight: 500;
+    height: 40px;
+    padding: 0 8px;
+    font-size: 14px;
+    border-radius: 8px;
+    background-color: #f5f7fa;
+    border: 1px solid #e4e7ed;
+    transition: all 0.2s ease;
+}
+
+.sort-select-btn:hover {
+    background-color: #eef1f6;
+    border-color: #dcdfe6;
 }
 
 .sort-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
     align-items: stretch;
+    padding: 4px;
 }
 
 .sort-item,
@@ -330,43 +368,154 @@
     margin: 0 !important;
     text-align: left !important;
     justify-content: flex-start !important;
-    border-radius: 8px !important;
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-    height: 40px !important;
-    line-height: 40px !important;
+    border-radius: 6px !important;
+    padding: 8px 8px !important;
+    height: 36px !important;
+    line-height: 20px !important;
     display: flex !important;
     align-items: center !important;
     outline: none !important;
     box-shadow: none !important;
     border-width: 1px !important;
-    font-size: 16px !important;
+    font-size: 14px !important;
     font-family: inherit !important;
     background: #fff !important;
     border-color: #dcdfe6 !important;
+    transition: all 0.2s ease !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 
-.sort-item .el-button__text,
-.add-sort-btn .el-button__text {
-    width: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    font-size: 16px !important;
-    font-family: inherit !important;
+.sort-item:hover {
+    background-color: #f5f7fa !important;
+    border-color: #c0c4cc !important;
+}
+
+.add-sort-btn {
+    margin-top: 4px !important;
+    color: #409eff !important;
+    border-style: dashed !important;
+}
+
+.add-sort-btn:hover {
+    background-color: #ecf5ff !important;
+    border-color: #409eff !important;
 }
 
 .todo-list {
     position: relative;
-    height: calc(100vh - 200px); /* Adjust this value based on your header height */
+    height: calc(100vh - 180px);
     overflow-y: auto;
-    margin-top: 20px;
-    padding-right: 4px;
+    margin-top: 12px;
+    padding: 0 4px;
 }
 
-/* Custom scrollbar styles */
+.todo-item {
+    padding: 8px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.empty-tip {
+    text-align: center;
+    color: #909399;
+    padding: 16px;
+    font-size: 14px;
+}
+
+.date-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.city-weather-icon-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #606266;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    background-color: #f5f7fa;
+}
+
+.city-weather-icon-container:hover {
+    background-color: #eef1f6;
+}
+
+.city-text {
+    font-weight: 500;
+    color: #303133;
+}
+
+.weather-icon {
+    color: #ffa500;
+    font-size: 15px;
+    margin-left: 4px;
+}
+
+.weather-text {
+    color: #606266;
+}
+
+:deep(.day-todo-picker) {
+    z-index: 2000;
+}
+
+:deep(.sort-popover) {
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 100px !important;
+    width: 100px !important;
+}
+
+:deep(.el-popover) {
+    min-width: 100px !important;
+    width: 100px !important;
+}
+
+:deep(.el-popover__title) {
+    margin: 0;
+    font-size: 14px;
+    color: #606266;
+    padding: 8px 0;
+    border-bottom: 1px solid #ebeef5;
+}
+
+:deep(.add-sort-dialog) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+:deep(.add-sort-dialog .el-dialog) {
+    width: 240px !important;
+    height: 280px !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+:deep(.add-sort-dialog .el-dialog__body) {
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+:deep(.add-sort-modal) {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* 自定义滚动条样式 */
 .todo-list::-webkit-scrollbar {
     width: 4px;
 }
@@ -383,90 +532,5 @@
 
 .todo-list::-webkit-scrollbar-thumb:hover {
     background: #c0c4cc;
-}
-
-.todo-item {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-.empty-tip {
-    text-align: center;
-    color: #909399;
-    padding: 20px;
-}
-
-:deep(.day-todo-picker) {
-    z-index: 2000;
-}
-
-:deep(.sort-popover) {
-    padding: 8px;
-}
-
-:deep(.add-sort-dialog) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-:deep(.add-sort-dialog .el-dialog) {
-    width: 250px !important;
-    height: 300px !important;
-    border-radius: 12px !important;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;
-    padding: 0 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-:deep(.add-sort-dialog .el-dialog__body) {
-    padding: 0 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-}
-
-:deep(.add-sort-modal) {
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.date-container {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.city-weather-icon-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 14px;
-    color: #606266;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.city-weather-icon-container:hover {
-    background-color: #f5f7fa;
-}
-
-.city-text {
-    font-weight: 500;
-    color: #303133;
-}
-
-.weather-icon {
-    color: #ffa500;
-    font-size: 16px;
-    margin-left: 4px;
-}
-
-.weather-text {
-    color: #606266;
 }
 </style>

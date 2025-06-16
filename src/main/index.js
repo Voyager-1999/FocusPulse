@@ -18,7 +18,8 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: true,
       webSecurity: true,
-      permissions: ['geolocation']
+      permissions: ['geolocation'],
+      allowRunningInsecureContent: true
     }
   })
 
@@ -31,11 +32,11 @@ function createWindow() {
           "default-src 'self' https://*.amap.com",
           "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.amap.com https://webapi.amap.com",
           "script-src-elem 'self' 'unsafe-inline' https://*.amap.com https://webapi.amap.com",
-          "style-src 'self' 'unsafe-inline' https://*.amap.com",
+          "style-src 'self' 'unsafe-inline' https://*.amap.com https://fonts.googleapis.com",
           "img-src 'self' data: https://*.amap.com",
-          "connect-src 'self' https://*.amap.com",
-          "font-src 'self' data:",
-          "media-src 'self'"
+          "connect-src 'self' https://*.amap.com https://assets.mixkit.co https://httpbin.org https://api.deepseek.com https://*.deepseek.com",
+          "font-src 'self' data: https://fonts.gstatic.com",
+          "media-src 'self' data: blob: https://assets.mixkit.co"
         ].join('; ')
       }
     })
@@ -58,15 +59,15 @@ function createWindow() {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  // 设置地理位置权限
+  // 设置网络权限
   mainWindow.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
-    const allowedPermissions = ['geolocation']
+    const allowedPermissions = ['geolocation', 'media', 'notifications', 'fullscreen'];
     if (allowedPermissions.includes(permission)) {
-      callback(true) // 允许地理位置权限
+      callback(true);
     } else {
-      callback(false)
+      callback(false);
     }
-  })
+  });
 }
 
 // This method will be called when Electron has finished

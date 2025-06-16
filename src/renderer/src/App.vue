@@ -24,10 +24,6 @@
             <el-icon><Clock /></el-icon>
             <span>最近待办</span>
           </RouterLink>
-          <RouterLink :to="{ name: 'Overview' }" class="nav-link">
-            <el-icon><View /></el-icon>
-            <span>日程概览</span>
-          </RouterLink>
           <RouterLink to="/TomatoClock" class="nav-link">
             <el-icon><Timer /></el-icon>
             <span>番茄钟</span>
@@ -64,7 +60,7 @@
   
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import { List, Timer, Calendar, View, Clock, DataLine, MagicStick ,User, Notebook } from '@element-plus/icons-vue'
+import { List, Timer, Calendar, Clock, DataLine, MagicStick ,User, Notebook } from '@element-plus/icons-vue'
 import { useTodoListStore } from './store/todoList.store'
 import { useSortsStore } from './store/sorts.store'
 import { useConfigStore } from './store/config.store'
@@ -339,8 +335,8 @@ body {
 .navigation {
     width: 180px;
     height: 100vh;
-    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-    color: white;
+    background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #495057;
     display: flex;
     flex-direction: column;
     padding: 16px 0;
@@ -349,86 +345,86 @@ body {
     top: 0;
     bottom: 0;
     z-index: 100;
-    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
 }
 
 .nav-header {
-padding: 0 16px;
-margin-bottom: 24px;
-display: flex;
-align-items: center;
-gap: 8px;
+    padding: 0 16px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .logo {
-width: 24px;
-height: 24px;
+    width: 24px;
+    height: 24px;
 }
 
 .app-title {
-font-size: 16px;
-font-weight: 600;
-margin: 0;
-background: linear-gradient(45deg, #3498db, #2ecc71);
-background-clip: text;
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    background: linear-gradient(45deg, #60a5fa, #93c5fd);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .nav-links {
-flex: 1;
-display: flex;
-flex-direction: column;
-gap: 4px;
-padding: 0 10px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 10px;
 }
 
 .nav-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  color: #ecf0f1;
-  text-decoration: none;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    color: #495057;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: translateX(4px);
+    background-color: rgba(0, 0, 0, 0.05);
+    transform: translateX(4px);
 }
 
 .nav-link.router-link-active {
-  background-color: #3498db;
-  color: white;
+    background-color: #60a5fa;
+    color: white;
 }
 
 .nav-link .el-icon {
-  font-size: 16px;
+    font-size: 16px;
 }
 
 .nav-link span {
-  font-size: 13px;
-  font-weight: 500;
+    font-size: 13px;
+    font-weight: 500;
 }
 
 .nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: #3498db;
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #60a5fa;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
 }
 
 .nav-link:hover::after {
-  transform: scaleX(1);
+    transform: scaleX(1);
 }
 
 .nav-footer {
@@ -482,19 +478,19 @@ margin-left: 56px;
 
 /* 自定义滚动条 */
 .navigation::-webkit-scrollbar {
-width: 6px;
+    width: 6px;
 }
 
 .navigation::-webkit-scrollbar-track {
-background: transparent;
+    background: transparent;
 }
 
 .navigation::-webkit-scrollbar-thumb {
-background-color: rgba(255, 255, 255, 0.2);
-border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
 }
 
 .navigation::-webkit-scrollbar-thumb:hover {
-background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(0, 0, 0, 0.2);
 }
 </style>

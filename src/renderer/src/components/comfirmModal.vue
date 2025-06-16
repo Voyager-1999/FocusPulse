@@ -27,7 +27,6 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
 
 const props = defineProps({
   id: {
@@ -81,6 +80,7 @@ const onCancel = () => {
       rgba(89, 66, 141, 1) 0%,
       rgba(114, 78, 156, 1) 90%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -89,6 +89,7 @@ const onCancel = () => {
       rgb(115, 75, 176) 0%,
       rgb(147, 110, 203) 90%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 </style>

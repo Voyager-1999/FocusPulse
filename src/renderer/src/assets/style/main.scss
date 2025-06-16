@@ -10,6 +10,8 @@ body {
   -webkit-user-drag: none;
   -webkit-user-select: none;
   -ms-user-select: none;
+  -webkit-print-color-adjust: exact !important;   /* Chrome, Safari 6 – 15.3, Edge */
+  print-color-adjust: exact !important;           /* Firefox 97+, Safari 15.4+ */
 }
 
 .app-container {
@@ -55,7 +57,6 @@ i {
   margin-right: 40px;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  /*padding: 0;*/
   color: rgba(0, 0, 0, 0.85);
   line-height: 1.5715;
   list-style: none;
@@ -284,9 +285,6 @@ i {
   margin-left: -30px;
 }
 
-/*#todo-date-picker-input:focus {*/
-/*    outline: unset;*/
-/*}*/
 
 .todo-description p {
   white-space: pre-wrap;
@@ -399,12 +397,6 @@ i {
   .weekdays > .to-do-list-container:last-child {
     display: none !important;
   }
-}
-
-* {
-  -webkit-print-color-adjust: exact !important;   /* Chrome, Safari 6 – 15.3, Edge */
-  color-adjust: exact !important;                 /* Firefox 48 – 96 */
-  print-color-adjust: exact !important;           /* Firefox 97+, Safari 15.4+ */
 }
 
 /*Media querys*/

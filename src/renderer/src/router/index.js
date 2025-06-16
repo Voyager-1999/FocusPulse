@@ -4,7 +4,6 @@ import TomatoClock from '../views/TomatoClock.vue'
 import ClassSchedule from '../views/ClassSchedule.vue'
 import DayToDo from '../views/DayToDo.vue'
 import RecentToDo from '../views/RecentToDo.vue'
-import Overview from '../views/Overview.vue'
 import DataAnalysis from '../views/DataAnalysis.vue'
 import YesterdaySummary from '../views/YesterdaySummary.vue'
 import TodoStatistic from '../views/TodoStatistic.vue'
@@ -31,11 +30,6 @@ const router = createRouter({
 			name:'RecentToDo',
 			path:'/RecentToDo',
 			component:RecentToDo
-		},
-		{
-			name:'Overview',
-			path:'/Overview',
-			component:Overview
 		},
 		{
 			path:'/TomatoClock',
