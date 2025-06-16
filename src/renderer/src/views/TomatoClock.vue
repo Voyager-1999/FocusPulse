@@ -53,20 +53,43 @@
           <input v-model="taskInput" type="text" placeholder="输入任务名称，按回车新建任务" @keyup.enter="addTask">
           <button id="addTaskBtn" @click="addTask">添加任务</button>
         </div>
-        <ul class="task-list">
-          <li v-for="task in tasks" :key="task.id" class="task-item" 
-              :class="{ 'selected': currentTask === task.name && isWorking }"
-              @click="selectTask(task)">
-            <span>
-              <span v-if="task.completed" class="text-green-600 mr-1">✓</span>
-              <span v-else class="mr-1">○</span>
-              {{ task.name }}
-            </span>
-            <div class="task-actions">
-              <button class="delete-btn" @click.stop="deleteTask(task.id)">删除</button>
-            </div>
-          </li>
-        </ul>
+        <!-- 自动同步的todo任务 -->
+        <div v-if="todoTasks.length">
+          <div class="task-group-title">待办事项</div>
+          <ul class="task-list">
+            <li v-for="task in todoTasks" :key="task.id" class="task-item"
+                :class="{ 'selected': currentTask === task.name && isWorking }"
+                @click="selectTask(task)">
+              <span>
+                <span v-if="task.completed" class="text-green-600 mr-1">✓</span>
+                <span v-else class="mr-1">○</span>
+                {{ task.name }}
+              </span>
+              <div class="task-actions">
+                <span class="todo-badge">TODO</span>
+                <button class="delete-btn" @click.stop="deleteTask(task.id)">删除</button>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <!-- 用户自定义任务 -->
+        <div v-if="customTasks.length">
+          <div class="task-group-title">自定义任务</div>
+          <ul class="task-list">
+            <li v-for="task in customTasks" :key="task.id" class="task-item"
+                :class="{ 'selected': currentTask === task.name && isWorking }"
+                @click="selectTask(task)">
+              <span>
+                <span v-if="task.completed" class="text-green-600 mr-1">✓</span>
+                <span v-else class="mr-1">○</span>
+                {{ task.name }}
+              </span>
+              <div class="task-actions">
+                <button class="delete-btn" @click.stop="deleteTask(task.id)">删除</button>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
       <!-- 设置 -->
       <div class="settings-section">
@@ -342,20 +365,27 @@ import dayjs from 'dayjs'
 
 const todoStore = useTodoListStore()
 
+// 任务分组
+const todoTasks = computed(() => tasks.value.filter(t => t.isTodo))
+const customTasks = computed(() => tasks.value.filter(t => !t.isTodo))
+
 // 自动同步当天todo到番茄钟任务
 function syncTodayTodosToTomatoTasks() {
   const today = dayjs().format('YYYYMMDD')
   const todayTodos = todoStore.getTodosByDate(today)
   todayTodos.forEach(todo => {
-    // 检查是否已存在同名任务（不含“（todo）”标注）
-    const exists = tasks.value.some(task => 
-      task.name === todo.text || task.name === todo.text + '（todo）'
-    )
-    if (!exists) {
+    // 查找是否有同名任务
+    const task = tasks.value.find(task => task.name === todo.text)
+    if (task) {
+      // 已有同名任务，标记为todo
+      task.isTodo = true
+    } else {
+      // 没有则新增
       tasks.value.push({
         id: Date.now() + Math.random(),
-        name: todo.text + '（todo）',
-        completed: false
+        name: todo.text,
+        completed: false,
+        isTodo: true
       })
     }
   })
@@ -775,5 +805,22 @@ input[type="text"], input[type="number"] {
   10% { opacity: 1; transform: translateY(0); }
   90% { opacity: 1; transform: translateY(0); }
   100% { opacity: 0; transform: translateY(-20px); }
+}
+
+.task-group-title {
+  font-weight: bold;
+  color: #62928C;
+  margin: 0.5rem 0 0.25rem 0.5rem;
+  font-size: 1.1rem;
+}
+.todo-badge {
+  display: inline-block;
+  background:rgb(213, 87, 87);
+  color: #fff;
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-size: 12px;
+  margin-right: 8px;
+  margin-left: 8px;
 }
 </style>
