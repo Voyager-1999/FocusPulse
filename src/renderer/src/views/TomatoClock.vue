@@ -1,168 +1,158 @@
 <template>
-
-  <div class="container"> 
-
-    <h1>专注脉搏不停，目标就永远在跳动中靠近</h1>
-    
-    <!-- 状态显示 -->
-    <div class="status" :class="isWorking ? 'working' : 'resting'">
-      {{ statusText }}
-    </div>
-    
-    <!-- 计时器与进度环 -->
-    <div class="timer-container">
-      <svg class="progress-ring">
-        <circle
-          class="progress-ring__circle"
-          stroke="#EBE5D0"
-          stroke-width="10"
-          fill="transparent"
-          r="140"
-          cx="150"
-          cy="150"
-        />
-        <circle
-          class="progress-ring__circle"
-          :stroke="isWorking ? '#62928C' : '#4B6B8A'"
-          stroke-width="10"
-          fill="transparent"
-          r="140"
-          cx="150"
-          cy="150"
-          :stroke-dasharray="circumference"
-          :stroke-dashoffset="progressOffset"
-        />
-      </svg>
-      <div class="timer-display">
-        {{ minutes }}:{{ seconds }}
+  <div class="tomato-clock-root">
+    <div class="container"> 
+      <h1>专注脉搏不停，目标就永远在跳动中靠近</h1>
+      <!-- 状态显示 -->
+      <div class="status" :class="isWorking ? 'working' : 'resting'">
+        {{ statusText }}
       </div>
-    </div>
-    
-    <!-- 控制按钮 -->
-    <div class="controls">
-      <button class="start-btn" @click="startTimer" :disabled="isRunning">
-        开始
-      </button>
-      <button class="pause-btn" @click="pauseTimer" :disabled="!isRunning">
-        暂停
-      </button>
-      <button id="resetBtn" @click="resetTimer">
-        重置
-      </button>
-    </div>
-
-    <!-- 任务管理 -->
-    <div class="task-section">
-      <h2>任务管理</h2>
-      <div class="task-input">
-        <input v-model="taskInput" type="text" placeholder="输入任务名称" @keyup.enter="addTask">
-        <button id="addTaskBtn" @click="addTask">添加任务</button>
+      <!-- 计时器与进度环 -->
+      <div class="timer-container">
+        <svg class="progress-ring">
+          <circle
+            class="progress-ring__circle"
+            stroke="#EBE5D0"
+            stroke-width="10"
+            fill="transparent"
+            r="140"
+            cx="150"
+            cy="150"
+          />
+          <circle
+            class="progress-ring__circle"
+            :stroke="isWorking ? '#62928C' : '#4B6B8A'"
+            stroke-width="10"
+            fill="transparent"
+            r="140"
+            cx="150"
+            cy="150"
+            :stroke-dasharray="circumference"
+            :stroke-dashoffset="progressOffset"
+          />
+        </svg>
+        <div class="timer-display">
+          {{ minutes }}:{{ seconds }}
+        </div>
       </div>
-      <ul class="task-list">
-        <li v-for="task in tasks" :key="task.id" class="task-item" 
-            :class="{ 'selected': currentTask === task.name && isWorking }"
-            @click="selectTask(task)">
-          <span>
-            <span v-if="task.completed" class="text-green-600 mr-1">✓</span>
-            <span v-else class="mr-1">○</span>
-            {{ task.name }}
-          </span>
-          <div class="task-actions">
-            <button class="delete-btn" @click.stop="deleteTask(task.id)">删除</button>
+      <!-- 控制按钮 -->
+      <div class="controls">
+        <button class="start-btn" @click="startTimer" :disabled="isRunning">
+          开始
+        </button>
+        <button class="pause-btn" @click="pauseTimer" :disabled="!isRunning">
+          暂停
+        </button>
+        <button id="resetBtn" @click="resetTimer">
+          重置
+        </button>
+      </div>
+      <!-- 任务管理 -->
+      <div class="task-section">
+        <h2>任务管理</h2>
+        <div class="task-input">
+          <input v-model="taskInput" type="text" placeholder="输入任务名称" @keyup.enter="addTask">
+          <button id="addTaskBtn" @click="addTask">添加任务</button>
+        </div>
+        <ul class="task-list">
+          <li v-for="task in tasks" :key="task.id" class="task-item" 
+              :class="{ 'selected': currentTask === task.name && isWorking }"
+              @click="selectTask(task)">
+            <span>
+              <span v-if="task.completed" class="text-green-600 mr-1">✓</span>
+              <span v-else class="mr-1">○</span>
+              {{ task.name }}
+            </span>
+            <div class="task-actions">
+              <button class="delete-btn" @click.stop="deleteTask(task.id)">删除</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <!-- 设置 -->
+      <div class="settings-section">
+        <h2>设置</h2>
+        <div class="settings-form">
+          <div class="setting-item">
+            <label>工作时间(分钟):</label>
+            <input type="number" min="1" v-model.number="workTimeInput">
           </div>
-        </li>
-      </ul>
-    </div>
-
-    <!-- 设置 -->
-    <div class="settings-section">
-      <h2>设置</h2>
-      <div class="settings-form">
-        <div class="setting-item">
-          <label>工作时间(分钟):</label>
-          <input type="number" min="1" v-model.number="workTimeInput">
-        </div>
-        <div class="setting-item">
-          <label>短休息(分钟):</label>
-          <input type="number" min="1" v-model.number="shortBreakInput">
-        </div>
-        <div class="setting-item">
-          <label>长休息(分钟):</label>
-          <input type="number" min="1" v-model.number="longBreakInput">
-        </div>
-        <div>
-          <button id="saveSettingsBtn" @click="saveSettings">保存设置</button>
+          <div class="setting-item">
+            <label>短休息(分钟):</label>
+            <input type="number" min="1" v-model.number="shortBreakInput">
+          </div>
+          <div class="setting-item">
+            <label>长休息(分钟):</label>
+            <input type="number" min="1" v-model.number="longBreakInput">
+          </div>
+          <div>
+            <button id="saveSettingsBtn" @click="saveSettings">保存设置</button>
+          </div>
         </div>
       </div>
-    </div>
-
-<div class="history-section">
-  <h2>历史记录</h2>
-  <!-- 在 <h2>历史记录</h2> 旁边加选择器 -->
-<div style="display: flex; align-items: center; gap: 1rem;">
-  <h2 style="margin: 0;">历史记录</h2>
-  <select v-model="historyDays" style="height: 2rem;">
-    <option :value="3">近三天</option>
-    <option :value="7">近七天</option>
-    <option :value="15">近十五天</option>
-    <option :value="0">全部</option>
-  </select>
-</div>
-  <button id="showHistoryBtn" @click="toggleHistory">
-    {{ showHistory ? '隐藏历史记录' : '显示历史记录' }}
-  </button>
-  <div v-show="showHistory">
-    <table class="history-table">
-      <thead>
-        <tr>
-          <th>选择</th>
-          <th>任务</th>
-          <th>时间</th>
-          <th>类型</th>
-          <th>专注时长</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="record in [...history].reverse()" :key="record.time + record.task">
-          <td>
-            <input
-              type="checkbox"
-              :value="record.time + record.task"
-              v-model="selectedHistory"
-            />
-          </td>
-          <td class="border px-2 py-1">{{ record.task }}</td>
-          <td class="border px-2 py-1">{{ record.time }}</td>
-          <td class="border px-2 py-1">{{ record.type }}</td>
-          <td class="border px-2 py-1">
-            <span v-if="record.type === '工作'">{{ record.duration }} 分钟</span>
-            <span v-else>-</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div style="text-align: right; margin-top: 1rem;">
-      <button
-        v-if="selectedHistory.length > 0"
-        @click="deleteSelectedHistory"
-        style="background-color: #e57373; color: #fff;"
-      >
-        删除所选历史记录
-      </button>
+      <div class="history-section">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <h2 style="margin: 0;">历史记录</h2>
+          <select v-model="historyDays" style="height: 2rem;">
+            <option :value="3">近三天</option>
+            <option :value="7">近七天</option>
+            <option :value="15">近十五天</option>
+            <option :value="0">全部</option>
+          </select>
+        </div>
+        <button id="showHistoryBtn" @click="toggleHistory">
+          {{ showHistory ? '隐藏历史记录' : '显示历史记录' }}
+        </button>
+        <div v-show="showHistory">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>选择</th>
+                <th>任务</th>
+                <th>时间</th>
+                <th>类型</th>
+                <th>专注时长</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="record in [...history].reverse()" :key="record.time + record.task">
+                <td>
+                  <input
+                    type="checkbox"
+                    :value="record.time + record.task"
+                    v-model="selectedHistory"
+                  />
+                </td>
+                <td class="border px-2 py-1">{{ record.task }}</td>
+                <td class="border px-2 py-1">{{ record.time }}</td>
+                <td class="border px-2 py-1">{{ record.type }}</td>
+                <td class="border px-2 py-1">
+                  <span v-if="record.type === '工作'">{{ record.duration }} 分钟</span>
+                  <span v-else>-</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="text-align: right; margin-top: 1rem;">
+            <button
+              v-if="selectedHistory.length > 0"
+              @click="deleteSelectedHistory"
+              style="background-color: #e57373; color: #fff;"
+            >
+              删除所选历史记录
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- 通知 -->
+      <div v-if="notification" class="notification">
+        {{ notification }}
+      </div>
+      <!-- 铃声 -->
+      <audio ref="alarmSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" type="audio/mpeg" />
+      </audio>
     </div>
   </div>
-</div>
-
-    <!-- 通知 -->
-    <div v-if="notification" class="notification">
-      {{ notification }}
-    </div>
-
-    <!-- 铃声 -->
-    <audio ref="alarmSound" preload="auto">
-      <source src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" type="audio/mpeg" />
-    </audio>
-  </div> 
 </template>
 
 <script setup>
@@ -419,324 +409,293 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.progress-ring {
+@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+
+.tomato-clock-root {
+  font-family: 'Luckiest Guy', sans-serif;
+  background: linear-gradient(135deg, #EBE5D0 0%, #DBD8CF 100%);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  /* 新增以下两行，确保页面可滚动 */
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.tomato-clock-root .container {
+  background-color: #FFFFFF;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  width: 90%;
+  max-width: 800px;
+  color: #303030;
+  border: 1px solid #DBD8CF;
+  margin: 2rem auto;
+}
+
+.tomato-clock-root h1,
+.tomato-clock-root h2 {
+  color: #4B6B8A;
+  text-align: center;
+  font-weight: 700;
+}
+
+.tomato-clock-root h1 {
+  font-size: 2.25rem;
+  margin-bottom: 1rem;
+}
+
+.tomato-clock-root h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.tomato-clock-root .timer-container {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 2rem auto;
+}
+
+.tomato-clock-root .progress-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: block;
 }
-.progress-ring__circle {
+
+.tomato-clock-root .progress-ring__circle {
   transition: stroke-dashoffset 0.35s;
   transform: rotate(-90deg);
   transform-origin: 50% 50%;
-}
-</style>
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
-
-body {
-    font-family: 'Luckiest Guy', sans-serif;
-    background: linear-gradient(135deg, #EBE5D0 0%, #DBD8CF 100%);
-    min-height: 100vh;
-    margin: 0;
-    padding: 0; /* ← 这里改为0，避免body撑不满窗口 */
-    /* 不要加display:flex，不要加align-items/justify-content */
-    overflow-y: auto; /* ← 允许页面滚动 */
+  stroke: #62928C;
 }
 
-.container {
-    background-color: #FFFFFF;
-    border-radius: 1rem;
-    padding: 2rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    width: 90%;
-    max-width: 800px;
-    color: #303030;
-    border: 1px solid #DBD8CF;
-    margin: 2rem auto; /* 居中显示 */
-    /* 不要设置height或max-height */
+.tomato-clock-root .resting .progress-ring__circle {
+  stroke: #4B6B8A;
 }
 
-h1, h2 {
-    color: #4B6B8A;
-    text-align: center;
-    font-weight: 700;
+.tomato-clock-root .timer-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 4.5rem;
+  text-align: center;
+  color: #62928C;
+  transition: color 0.3s ease;
 }
 
-h1 {
-    font-size: 2.25rem;
-    margin-bottom: 1rem;
+.tomato-clock-root .controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
+.tomato-clock-root button {
+  padding: 14px 36px;
+  border: none;
+  border-radius: 32px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: #FFFFFF;
+  min-width: 120px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  letter-spacing: 0.3px;
+  transition: 
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
 }
 
-.timer-container {
-    position: relative;
-    width: 300px;
-    height: 300px;
-    margin: 2rem auto;
+.tomato-clock-root button:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-.progress-ring {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+.tomato-clock-root button:focus {
+  outline: none;
+  box-shadow: 
+      0 0 0 3px rgba(75,107,138,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
-.timer-display {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 4.5rem;
-    text-align: center;
-    color: #62928C;
-    transition: color 0.3s ease;
+.tomato-clock-root button:active {
+  transform: scale(0.98);
 }
 
-.controls {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
+.tomato-clock-root .start-btn {
+  background-color: #62928C;
+}
+.tomato-clock-root .start-btn:hover {
+  background-color: #4B6B8A;
+}
+.tomato-clock-root .pause-btn {
+  background-color: #4B6B8A;
+}
+.tomato-clock-root .pause-btn:hover {
+  background-color: #3A556B;
+}
+.tomato-clock-root .delete-btn {
+  background-color: #DBD8CF;
+  color: #303030;
+}
+.tomato-clock-root .delete-btn:hover {
+  background-color: #C5C2B9;
+}
+.tomato-clock-root #resetBtn {
+  background-color: #EBE5D0;
+  color: #303030;
+}
+.tomato-clock-root #resetBtn:hover {
+  background-color: #D5CFBA;
+}
+.tomato-clock-root #addTaskBtn {
+  background-color:rgb(91, 112, 206);
+  color: #FFFFFF;
+}
+.tomato-clock-root #addTaskBtn:hover {
+  background-color:rgb(84, 66, 162);
+}
+.tomato-clock-root #saveSettingsBtn {
+  background-color: #DBD8CF;
+  color: #303030;
+}
+.tomato-clock-root #saveSettingsBtn:hover {
+  background-color: #C5C2B9;
+}
+.tomato-clock-root #showHistoryBtn {
+  background-color: #62928C;
+  color: #FFFFFF;
+}
+.tomato-clock-root #showHistoryBtn:hover {
+  background-color: #4B6B8A;
 }
 
-button {
-    padding: 14px 36px;
-    border: none;
-    border-radius: 32px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 600;
-    color: #FFFFFF;
-    min-width: 120px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    letter-spacing: 0.3px;
-    transition: 
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
+.tomato-clock-root .task-section,
+.tomato-clock-root .settings-section,
+.tomato-clock-root .history-section {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #DBD8CF;
 }
 
-button:hover {
-    transform: scale(1.03);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+.tomato-clock-root .task-input {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-button:focus {
-    outline: none;
-    box-shadow: 
-        0 0 0 3px rgba(75,107,138,0.3),
-        inset 0 1px 0 rgba(255,255,255,0.2);
+.tomato-clock-root input[type="text"],
+.tomato-clock-root input[type="number"] {
+  padding: 0.5rem;
+  border: 1px solid #DBD8CF;
+  border-radius: 0.375rem;
+  flex-grow: 1;
+  background-color: #FFFFFF;
+  color: #303030;
+  font-family: inherit;
 }
 
-button:active {
-    transform: scale(0.98);
+.tomato-clock-root .task-list {
+  list-style: none;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
-.start-btn {
-    background-color: #62928C;
+.tomato-clock-root .task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid #DBD8CF;
+  transition: background-color 0.3s ease;
 }
 
-.start-btn:hover {
-    background-color: #4B6B8A;
+.tomato-clock-root .task-item:hover {
+  background-color: #EBE5D0;
 }
 
-.pause-btn {
-    background-color: #4B6B8A;
+.tomato-clock-root .task-actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
-.pause-btn:hover {
-    background-color: #3A556B;
+.tomato-clock-root .settings-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
-.delete-btn {
-    background-color: #DBD8CF;
-    color: #303030;
+.tomato-clock-root .setting-item {
+  display: flex;
+  align-items: center;
 }
 
-.delete-btn:hover {
-    background-color: #C5C2B9;
+.tomato-clock-root .setting-item label {
+  margin-right: 0.5rem;
+  min-width: 80px;
 }
 
-#resetBtn {
-    background-color: #EBE5D0;
-    color: #303030;
+.tomato-clock-root .history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
 }
 
-#resetBtn:hover {
-    background-color: #D5CFBA;
+.tomato-clock-root .history-table th,
+.tomato-clock-root .history-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #DBD8CF;
 }
 
-#addTaskBtn {
-    background-color:rgb(91, 112, 206);
-    color: #FFFFFF;
+.tomato-clock-root .history-table th {
+  background-color: #EBE5D0;
+  color: #303030;
 }
 
-#addTaskBtn:hover {
-    background-color:rgb(84, 66, 162);
+.tomato-clock-root .status {
+  text-align: center;
+  font-size: 1.25rem;
+  margin: 1rem 0;
 }
 
-#saveSettingsBtn {
-    background-color: #DBD8CF;
-    color: #303030;
+.tomato-clock-root .working {
+  color: #62928C;
 }
 
-#saveSettingsBtn:hover {
-    background-color: #C5C2B9;
+.tomato-clock-root .resting {
+  color: #4B6B8A;
 }
 
-#showHistoryBtn {
-    background-color: #62928C;
-    color: #FFFFFF;
+.tomato-clock-root .selected {
+  background-color: #EBE5D0;
 }
 
-#showHistoryBtn:hover {
-    background-color: #4B6B8A;
-}
-
-.task-section, .settings-section, .history-section {
-    margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid #DBD8CF;
-}
-
-.task-input {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-input[type="text"], input[type="number"] {
-    padding: 0.5rem;
-    border: 1px solid #DBD8CF;
-    border-radius: 0.375rem;
-    flex-grow: 1;
-    background-color: #FFFFFF;
-    color: #303030;
-    font-family: inherit;
-}
-
-.task-list {
-    list-style: none;
-    padding: 0;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.task-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem;
-    border-bottom: 1px solid #DBD8CF;
-    transition: background-color 0.3s ease;
-}
-
-.task-item:hover {
-    background-color: #EBE5D0;
-}
-
-.task-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.settings-form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
-.setting-item {
-    display: flex;
-    align-items: center;
-}
-
-.setting-item label {
-    margin-right: 0.5rem;
-    min-width: 80px;
-}
-
-.history-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-}
-
-.history-table th, .history-table td {
-    padding: 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid #DBD8CF;
-}
-
-.history-table th {
-    background-color: #EBE5D0;
-    color: #303030;
-}
-
-.status {
-    text-align: center;
-    font-size: 1.25rem;
-    margin: 1rem 0;
-}
-
-.working {
-    color: #62928C;
-}
-
-.resting {
-    color: #4B6B8A;
-}
-
-.selected {
-    background-color: #EBE5D0;
-}
-
-.notification {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    background-color: #FFFFFF;
-    color: #4B6B8A;
-    padding: 0.75rem 1rem;
-    border-radius: 0.375rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    z-index: 1000;
-    animation: fadeInOut 3s ease;
-    border: 1px solid #4B6B8A;
+.tomato-clock-root .notification {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background-color: #FFFFFF;
+  color: #4B6B8A;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 1000;
+  animation: fadeInOut 3s ease;
+  border: 1px solid #4B6B8A;
 }
 
 @keyframes fadeInOut {
-    0% { opacity: 0; transform: translateY(-20px); }
-    10% { opacity: 1; transform: translateY(0); }
-    90% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-20px); }
+  0% { opacity: 0; transform: translateY(-20px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-20px); }
 }
-
-/* 进度条颜色 */
-.progress-ring__circle {
-    stroke: #62928C;
-}
-
-.resting .progress-ring__circle {
-    stroke: #4B6B8A;
-}
-.scroll-container {
-  height: 100vh; /* 视口高度 */
-  overflow-y: auto; /* 启用垂直滚动 */
-  padding: 20px;
-}
-
-.main-title {
-  font-family: 
-    "KaiTi", "STKaiti", /* Windows & macOS 兼容 */
-    "BiauKai", /* 部分 Linux 系统 */
-    cursive, sans-serif; /* 兜底 */
-    font-size: 1 rem;
-    color: #4B6B8A;
-}
-
 </style>
