@@ -1,21 +1,22 @@
 <template>
   <div style="position: relative;">
-    <!-- 选择月份 -->
-    <el-select v-model="selectedMonth" placeholder="选择月份">
-      <el-option
-        v-for="month in 12"
-        :key="month"
-        :label="`${month}月`"
-        :value="month"
-      />
-    </el-select>
-    <!-- 添加贴纸按钮 -->
-    <el-button size="small" style="margin: 8px 0;" @click="showStickerDialog = true">添加贴纸</el-button>
+    <!-- 选择月份和添加贴纸按钮 -->
+    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+      <el-select v-model="selectedMonth" placeholder="选择月份">
+        <el-option
+          v-for="month in 12"
+          :key="month"
+          :label="`${month}月`"
+          :value="month"
+        />
+      </el-select>
+      <el-button size="small" @click="showStickerDialog = true">添加贴纸</el-button>
+    </div>
     <!-- 贴纸选择弹窗 -->
-    <el-dialog v-model="showStickerDialog" title="选择贴纸图案" width="360px" :show-close="false" align-center>
-      <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">
+    <el-dialog v-model="showStickerDialog" title="选择贴纸图案" width="600px" :show-close="false" align-center>
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;">
         <div v-for="(img, idx) in stickerImages" :key="img" style="cursor:pointer; position:relative;">
-          <img :src="img" alt="贴纸图案" style="width:60px;height:60px;background:transparent;" @click="addSticker(img)" />
+          <img :src="img" alt="贴纸图案" style="width:70px;height:70px;background:transparent;" @click="addSticker(img)" />
         </div>
       </div>
     </el-dialog>
