@@ -13,9 +13,7 @@
             'welcome-message': message.isWelcome
           }"
         >
-          <div class="message-content">
-            {{ message.content }}
-          </div>
+          <div class="message-content" v-html="convertMarkdown(message.content)"></div>
           <div class="message-time" v-if="!message.isWelcome">
             {{ message.timestamp }}
           </div>
@@ -54,6 +52,7 @@
 import { ref, onMounted, watchEffect } from 'vue';
 import { useAIStore } from '../store/ai.store';
 import { Loading } from '@element-plus/icons-vue';
+import { marked } from 'marked'; // 修改为具名导入
 
 // 示例问题
 const sampleQuestions = [
@@ -65,6 +64,11 @@ const sampleQuestions = [
 const aiStore = useAIStore();
 const currentPrompt = ref('');
 const messages = ref([]);
+
+// 将Markdown文本转换为HTML
+const convertMarkdown = (markdown) => {
+  return marked(markdown);
+};
 
 // 从store加载历史记录并添加欢迎消息
 onMounted(() => {
