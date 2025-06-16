@@ -50,7 +50,7 @@
       <div class="task-section">
         <h2>任务管理</h2>
         <div class="task-input">
-          <input v-model="taskInput" type="text" placeholder="输入任务名称" @keyup.enter="addTask">
+          <input v-model="taskInput" type="text" placeholder="输入任务名称，按回车新建任务" @keyup.enter="addTask">
           <button id="addTaskBtn" @click="addTask">添加任务</button>
         </div>
         <ul class="task-list">
@@ -300,7 +300,11 @@ function addTask() {
     showNotification('任务名称不能为空')
     return
   }
-  if (tasks.value.some(t => t.name === name)) {
+  // 检查是否已存在同名任务（不含“（todo）”标注）
+  const exists = tasks.value.some(t => 
+    t.name === name || t.name === name + '（todo）'
+  )
+  if (exists) {
     showNotification('任务已存在')
     return
   }
@@ -332,6 +336,38 @@ function deleteTask(id) {
     saveData()
   }
 }
+
+import { useTodoListStore } from '../store/todoList.store'
+import dayjs from 'dayjs'
+
+const todoStore = useTodoListStore()
+
+// 自动同步当天todo到番茄钟任务
+function syncTodayTodosToTomatoTasks() {
+  const today = dayjs().format('YYYYMMDD')
+  const todayTodos = todoStore.getTodosByDate(today)
+  todayTodos.forEach(todo => {
+    // 检查是否已存在同名任务（不含“（todo）”标注）
+    const exists = tasks.value.some(task => 
+      task.name === todo.text || task.name === todo.text + '（todo）'
+    )
+    if (!exists) {
+      tasks.value.push({
+        id: Date.now() + Math.random(),
+        name: todo.text + '（todo）',
+        completed: false
+      })
+    }
+  })
+  saveData()
+}
+
+onMounted(() => {
+  loadData()
+  // 自动同步
+  syncTodayTodosToTomatoTasks()
+})
+
 
 // 设置
 function saveSettings() {
