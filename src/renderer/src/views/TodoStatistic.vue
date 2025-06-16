@@ -17,6 +17,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { Bar } from 'vue-chartjs'
+import { useTodoListStore } from '../store/ToDoList.store'
 import {
   Chart as ChartJS,
   Title,
@@ -26,6 +27,8 @@ import {
   CategoryScale,
   LinearScale,
 } from 'chart.js'
+import moment from 'moment'
+const TodoListStore = useTodoListStore()
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
@@ -76,24 +79,41 @@ function countTasksForDay(tasks, date) {
   return tasks.filter(t => t.completed && t.deadline === date).length
 }
 
+function getRecentDates(n = 7) {
+  const today = moment()
+  // 改为从最早日期开始生成，到今天的日期
+  return Array.from({ length: n }, (_, i) =>
+    today.clone().subtract(n - 1 - i, 'days').format('YYYYMMDD')
+  )
+}
+
 function loadData() {
-  try {
-    const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-    completed.value = tasks.filter(t => t.completed).length
-    uncompleted.value = tasks.filter(t => !t.completed).length
+  const dates = getRecentDates(7)
+  // 1. 先对日期进行排序（确保顺序正确）
+  dates.sort((a, b) => moment(a).diff(moment(b)))
+  
+  // 2. 提前格式化日期用于显示（避免在模板中重复计算）
+  const displayDates = dates.map(d => moment(d).format('MM-DD'))
+  let completedCount = 0
+  let uncompletedCount = 0
+  const chartCounts = []
 
-    const days = getLast7Days()
-    const data = days.map(d => countTasksForDay(tasks, d))
+  dates.forEach(date => {
+    const list = TodoListStore.todoList[date] || []
+    completedCount += list.filter(t => t.checked).length
+    uncompletedCount += list.filter(t => !t.checked).length
+    chartCounts.push(list.filter(t => t.checked).length)
+  })
 
-    chartData.value = {
-      labels: days,
-      datasets: [{
-        ...chartData.value.datasets[0],
-        data: data
-      }]
-    }
-  } catch (error) {
-    console.error('加载待办统计数据失败:', error)
+  completed.value = completedCount
+  uncompleted.value = uncompletedCount
+
+  chartData.value = {
+    labels: dates.map(d => moment(d).format('MM-DD')),
+    datasets: [{
+      ...chartData.value.datasets[0],
+      data: chartCounts
+    }]
   }
 }
 
