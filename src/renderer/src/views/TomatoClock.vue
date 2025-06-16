@@ -173,15 +173,14 @@
         {{ notification }}
       </div>
       <!-- 铃声 -->
-      <audio ref="alarmSound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" type="audio/mpeg" />
-      </audio>
+      <audio ref="alarmSound" :src="tomatoAlarm" preload="auto"></audio>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import tomatoAlarm from '../assets/tomato_alarm.wav'
 
 // 状态
 const workTime = ref(25 * 60)
@@ -218,6 +217,14 @@ const statusText = computed(() => {
 
 let timer = null
 const alarmSound = ref(null)
+
+// 播放铃声
+function playAlarm() {
+  if (alarmSound.value) {
+    alarmSound.value.currentTime = 0
+    alarmSound.value.play()
+  }
+}
 
 // 计时器逻辑
 function startTimer() {
@@ -289,16 +296,6 @@ function timerFinished() {
     clearInterval(timer)
   }
   saveData()
-}
-function playAlarm() {
-  if (alarmSound.value) {
-    alarmSound.value.currentTime = 0
-    alarmSound.value.play()
-  }
-}
-function showNotification(msg) {
-  notification.value = msg
-  setTimeout(() => notification.value = '', 3000)
 }
 
 const selectedHistory = ref([])
@@ -397,7 +394,9 @@ onMounted(() => {
   // 自动同步
   syncTodayTodosToTomatoTasks()
 })
-
+onUnmounted(() => {
+  clearInterval(timer)
+})
 
 // 设置
 function saveSettings() {
