@@ -1,65 +1,42 @@
 <template>
-  <div class="todo-statistic">
-    <h2>待办统计</h2>
+  <div class="tomato-statistic">
+    <h2>番茄统计</h2>
 
     <div class="summary">
-      <p>已完成任务数：<strong>{{ completed }}</strong></p>
-      <p>未完成任务数：<strong>{{ uncompleted }}</strong></p>
+      <p>本周专注时间：<strong>{{ totalMinutes }}</strong> 分钟</p>
     </div>
 
-    <div class="chart-wrapper" v-if="chartData.labels?.length">
-      <Bar :data="chartData" :options="chartOptions" />
+    <div class="chart-wrapper">
+      <Line :data="chartData" :options="chartOptions" />
     </div>
-    <div v-else class="loading">加载数据中...</div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { Bar } from 'vue-chartjs'
+import { ref, onMounted } from 'vue'
+import { Line } from 'vue-chartjs'
 import {
   Chart as ChartJS,
   Title,
   Tooltip,
   Legend,
-  BarElement,
+  LineElement,
+  PointElement,
   CategoryScale,
   LinearScale,
 } from 'chart.js'
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale)
 
-const completed = ref(0)
-const uncompleted = ref(0)
+const totalMinutes = ref(0)
+// 在这里初始化 chartData 的默认结构
 const chartData = ref({
   labels: [],
-  datasets: [{
-    label: '每日完成任务数',
-    data: [],
-    backgroundColor: '#42A5F5',
-    borderRadius: 4,
-  }]
+  datasets: []
 })
-
+// 在这里初始化 chartOptions
 const chartOptions = ref({
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top'
-    },
-    title: {
-      display: true,
-      text: '过去 7 天任务完成情况'
-    }
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      ticks: {
-        stepSize: 1
-      }
-    }
-  }
+  responsive: true
 })
 
 function getLast7Days() {
@@ -72,65 +49,66 @@ function getLast7Days() {
   return days
 }
 
-function countTasksForDay(tasks, date) {
-  return tasks.filter(t => t.completed && t.deadline === date).length
-}
-
-function loadData() {
-  try {
-    const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-    completed.value = tasks.filter(t => t.completed).length
-    uncompleted.value = tasks.filter(t => !t.completed).length
-
-    const days = getLast7Days()
-    const data = days.map(d => countTasksForDay(tasks, d))
-
-    chartData.value = {
-      labels: days,
-      datasets: [{
-        ...chartData.value.datasets[0],
-        data: data
-      }]
-    }
-  } catch (error) {
-    console.error('加载待办统计数据失败:', error)
-  }
+function sumMinutesByDay(data, dateStr) {
+  return data
+    .filter(p => p.type === 'work' && p.start_time?.startsWith(dateStr))
+    .reduce((sum, p) => sum + p.duration, 0)
 }
 
 onMounted(() => {
-  loadData()
-})
+  const pomos = JSON.parse(localStorage.getItem('pomodoros') || '[]')
+  const days = getLast7Days()
+  const minutes = days.map(d => sumMinutesByDay(pomos, d))
+  totalMinutes.value = minutes.reduce((a, b) => a + b, 0)
 
-onBeforeUnmount(() => {
-  // 清理数据防止切换时出现问题
   chartData.value = {
-    labels: [],
-    datasets: []
+    labels: days,
+    datasets: [
+      {
+        label: '每日专注时长（分钟）',
+        data: minutes,
+        borderColor: '#f87171',
+        backgroundColor: '#fecaca',
+        fill: true,
+        tension: 0.3,
+      }
+    ]
+  }
+
+  chartOptions.value = {
+    responsive: true,
+    plugins: {
+      title: {
+        display: true,
+        text: '过去 7 天番茄专注时间'
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 10
+        }
+      }
+    }
   }
 })
 </script>
 
 <style scoped>
-.todo-statistic {
+.tomato-statistic {
   padding: 1rem;
-  background: #f9f9f9;
-  border-radius: 10px;
+  background: #fef9f9;
+  border-radius: 12px;
 }
 
 .summary {
-  margin-bottom: 1rem;
   font-size: 16px;
-  line-height: 1.8;
+  margin-bottom: 1rem;
 }
 
 .chart-wrapper {
   max-width: 100%;
-  height: 300px;
-}
-
-.loading {
-  padding: 20px;
-  text-align: center;
-  color: #666;
 }
 </style>
+
