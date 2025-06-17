@@ -430,6 +430,14 @@ function saveData() {
     pomodoroCount: pomodoroCount.value
   }
   localStorage.setItem('pomodoroData', JSON.stringify(data))
+  // 同步专注记录供番茄统计模块使用
+  const standardized = history.value.map(r => ({
+    task: r.task,
+    duration: r.duration,
+    type: 'work',
+    date: dayjs(r.time).format('YYYY-MM-DD') // 将原始 time 转为标准 date
+  }))
+  localStorage.setItem('pomodoros', JSON.stringify(standardized))
 }
 function loadData() {
   const saved = localStorage.getItem('pomodoroData')
