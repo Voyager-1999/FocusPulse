@@ -281,6 +281,7 @@ onMounted(() => {
   cursor: grab;
   position: relative;
   overflow: hidden;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .note-card:hover {
@@ -372,10 +373,6 @@ onMounted(() => {
 }
 
 /* 动画效果 */
-.note-card {
-  animation: fadeIn 0.3s ease-out;
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;

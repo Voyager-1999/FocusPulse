@@ -2,17 +2,18 @@
   <div class="tomato-statistic">
     <h2>番茄统计</h2>
 
-    <div class="controls">
-      <label>查看周期：</label>
-      <select v-model="historyDays">
-        <option :value="3">近三天</option>
-        <option :value="7">近七天</option>
-        <option :value="15">近十五天</option>
-      </select>
-    </div>
-
     <div class="summary">
-      <p>专注总时长：<strong>{{ totalMinutes }}</strong> 分钟</p>
+      <div class="summary-row">
+        <p>专注总时长：<strong>{{ totalMinutes }}</strong> 分钟</p>
+        <div class="controls">
+          <label>查看周期：</label>
+          <select v-model="historyDays" class="period-select">
+            <option :value="3">近三天</option>
+            <option :value="7">近七天</option>
+            <option :value="15">近十五天</option>
+          </select>
+        </div>
+      </div>
     </div>
 
     <div class="chart-wrapper" v-if="chartData.labels.length">
@@ -107,30 +108,107 @@ watch(historyDays, loadChartData)
 <style scoped>
 .tomato-statistic {
   padding: 1rem;
-  background: #fef9f9;
+  background: #ffffff;
   border-radius: 12px;
+  margin: 0.5rem 0.5rem 1rem 0.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  height: calc(100vh - 4rem);
+  display: flex;
+  flex-direction: column;
 }
 
-.controls {
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.95rem;
+.tomato-statistic h2 {
+  color: #303133;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
 }
 
 .summary {
-  font-size: 16px;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
   margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.summary p {
+  margin: 0;
+  color: #606266;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.summary strong {
+  color: #303133;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.period-select {
+  padding: 0.5rem;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #606266;
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.period-select:hover {
+  border-color: #c0c4cc;
+}
+
+.period-select:focus {
+  border-color: #409eff;
 }
 
 .chart-wrapper {
-  max-width: 100%;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  margin-bottom: 0.5rem;
 }
 
 .loading {
+  padding: 2rem;
   text-align: center;
-  color: #999;
-  padding: 1rem;
+  color: #909399;
+  font-size: 0.9rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+:deep(.chartjs-render-monitor) {
+  animation: none !important;
+}
+
+:deep(.chartjs-tooltip) {
+  background: rgba(0, 0, 0, 0.8) !important;
+  border-radius: 4px !important;
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+  color: #fff !important;
 }
 </style>

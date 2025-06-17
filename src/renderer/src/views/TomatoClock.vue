@@ -226,6 +226,14 @@ function playAlarm() {
   }
 }
 
+// 显示通知
+function showNotification(message) {
+  notification.value = message
+  setTimeout(() => {
+    notification.value = ''
+  }, 3000)
+}
+
 // 计时器逻辑
 function startTimer() {
   if (!currentTask.value) {

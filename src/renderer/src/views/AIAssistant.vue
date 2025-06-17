@@ -56,8 +56,8 @@ import { marked } from 'marked'; // 修改为具名导入
 
 // 示例问题
 const sampleQuestions = [
-  "如何提高工作效率？",
-  "番茄工作法是什么？",
+  "如何提高工作效率？\n",
+  "番茄工作法是什么？\n",
   "如何管理每日任务？"
 ];
 
@@ -78,7 +78,7 @@ onMounted(() => {
   if (messages.value.length === 0) {
     aiStore.addMessage(
       'assistant', 
-      `你好！我是你的AI助手，请问有什么可以帮您？\n\n你可以尝试询问：\n${sampleQuestions.map(q => `• ${q}`).join('\n')}`,
+      `你好！我是你的AI助手，请问有什么可以帮您？\n\n你可以尝试询问：\n\n${sampleQuestions.map(q => `• ${q}`).join('\n')}`,
       false,
       true
     );
@@ -206,7 +206,7 @@ watchEffect(() => {
 }
 
 .message-content {
-  white-space: pre-line;
+  margin-bottom: 0;
 }
 
 .message-time {
