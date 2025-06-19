@@ -23,6 +23,12 @@
                 </div>
                 <div class="controls-container">
                     <i
+                        class="bi bi-collection category-manage-btn"
+                        title="分类管理"
+                        data-bs-toggle="modal"
+                        data-bs-target="#SortsModal"
+                    ></i>
+                    <i
                         class="bi bi-arrow-repeat repeat-events-btn"
                         title="重复事件"
                         data-bs-toggle="modal"
@@ -111,6 +117,7 @@
             </div>
         </div>
         <RecurrentEventsModal />
+        <SortsModal />
     </div>
 </template>
 
@@ -137,6 +144,7 @@
     import editTodo from '../components/editTodo.vue'
     import { useRoute } from 'vue-router'
     import RecurrentEventsModal from '../components/RecurrentEventsModal.vue'
+    import SortsModal from '../components/SortsModal.vue'
     import 'bootstrap-icons/font/bootstrap-icons.css'
     import { Modal } from 'bootstrap';
 
@@ -307,6 +315,27 @@
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+.category-manage-btn {
+    font-size: 18px;
+    color: #606266;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-right: 2px;
+}
+
+.category-manage-btn:hover {
+    background-color: #f5f7fa;
+    color: #409eff;
 }
 
 .repeat-events-btn {

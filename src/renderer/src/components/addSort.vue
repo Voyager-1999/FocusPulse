@@ -123,72 +123,91 @@ const createSort = () => {
 
 <style scoped>
 .addSort {
-    width: 250px;
-    height: 300px;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
+    overflow: auto;
 }
 
 .header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
+    position: relative;
 }
 
 .header h3 {
-    margin: 0;
-    font-size: 16px;
+    margin: 0 auto;
+    font-size: 20px;
     color: #303133;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 
 .close-btn {
-    padding: 4px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 6px;
     border: none;
     background: transparent;
+    transition: background 0.2s, color 0.2s;
 }
 
 .close-btn:hover {
     background-color: #f5f7fa;
+    color: #409eff;
 }
 
 .input-section {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
+    gap: 16px;
+    margin-bottom: 20px;
+    justify-content: center;
 }
 
 .color-preview {
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     border: 2px solid #dcdfe6;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
     flex-shrink: 0;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(.4,2,.6,1);
 }
 
 .color-preview:hover {
-    transform: scale(1.1);
+    transform: scale(1.12) rotate(-4deg);
+    box-shadow: 0 4px 16px rgba(64,158,255,0.15);
 }
 
 .sort-input {
     flex: 1;
+    height: 40px;
+    border-radius: 20px;
+    font-size: 15px;
+    padding: 0 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
 }
 
 .color-section {
     flex: 1;
     overflow: hidden;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 .color-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-    padding: 8px 0;
-    max-height: 120px;
+    gap: 12px;
+    padding: 16px 16px;
+    height: 100%;
+    min-height: 0;
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #dcdfe6 #f5f7fa;
@@ -209,22 +228,36 @@ const createSort = () => {
 }
 
 .color-item {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     cursor: pointer;
     border: 2px solid #dcdfe6;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(.4,2,.6,1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .color-item:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: scale(1.13);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.13);
 }
 
 .color-item.selected {
-    border: 2px solid #409eff;
-    box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+    border: 3px solid #409eff;
+    box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.18);
+    transform: scale(1.18);
+}
+
+.color-item .el-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60%;
+    height: 60%;
+    font-size: 1.5em;
+    margin: auto;
 }
 
 .add-color {
@@ -232,12 +265,17 @@ const createSort = () => {
     align-items: center;
     justify-content: center;
     background-color: #f5f7fa;
-    color: #909399;
+    color: #409eff;
+    border: 2px dashed #b3d8ff;
+    font-size: 18px;
+    transition: background 0.2s, color 0.2s, border 0.2s, transform 0.2s;
 }
 
 .add-color:hover {
-    background-color: #e4e7ed;
-    color: #606266;
+    background-color: #e4f1ff;
+    color: #1976d2;
+    border: 2px solid #409eff;
+    transform: scale(1.08);
 }
 
 .footer {
@@ -247,15 +285,22 @@ const createSort = () => {
 }
 
 .create-btn {
-    width: 100%;
-    border-radius: 20px;
-    font-weight: 500;
-    transition: all 0.3s ease;
+    width: 90%;
+    border-radius: 22px;
+    font-weight: 600;
+    font-size: 16px;
+    height: 42px;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, #409eff 0%, #66b1ff 100%);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(64, 158, 255, 0.10);
+    transition: box-shadow 0.2s, transform 0.2s;
 }
 
 .create-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 16px rgba(64, 158, 255, 0.18);
+    background: linear-gradient(90deg, #66b1ff 0%, #409eff 100%);
 }
 
 .color-picker-dialog :deep(.el-dialog__body) {
@@ -264,10 +309,14 @@ const createSort = () => {
     justify-content: center;
 }
 
+.color-picker-dialog :deep(.el-dialog) {
+    border-radius: 18px !important;
+}
+
 .dialog-footer {
     display: flex;
-    justify-content: flex-end;
-    gap: 12px;
+    justify-content: center;
+    gap: 16px;
     margin-top: 20px;
 }
 </style>

@@ -2,7 +2,7 @@
   <div class="editTodo">
     <!-- 1. 顶部 -->
     <div class="header">
-      <div class="sort-ellipse" :style="{ background: selectedSort.color || '#dcdfe6', color: selectedSort.color ? '#fff' : '#606266' }">
+      <div class="sort-ellipse" :style="{ background: selectedSort.color || '#f2f3f4', color: selectedSort.color ? '#fff' : '#f2f3f4' }">
         {{ selectedSort.name || '不分类' }}
       </div>
       <el-popover v-model:visible="showSortPopover" placement="bottom" width="200">
@@ -151,7 +151,7 @@ const todoData = ref({
 
 const selectedSort = computed(() => {
   if (!todoData.value.sort) {
-    return { name: '不分类', color: '#808080' };
+    return { name: '不分类', color: '#f2f3f4' };
   }
   return todoData.value.sort;
 })
@@ -291,7 +291,7 @@ async function saveTodo() {
     // 生成未来3个月内的重复事件实例
     const today = dayjs();
     const threeMonthsLater = today.add(3, 'month');
-    let current = today.clone();
+    let current = today.clone().add(1, 'day'); // 从明天开始
     while (current.isBefore(threeMonthsLater)) {
       repeatingEventHelper.generateRepeatingEventsIntances(current.format('YYYYMMDD'));
       current = current.add(1, 'day');

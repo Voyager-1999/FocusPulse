@@ -3,7 +3,7 @@
     <div
       class="header-menu-icons"
       type="button"
-      @click="toggleDropdown"
+      @click.stop="toggleDropdown"
       title="时间"
     >
       <i
@@ -16,13 +16,13 @@
       v-show="showDropdown"
       class="time-picker-dropdown"
       aria-labelledby="btnTaskTimePicker"
-      style="display: none;"
+      @click.stop
     >
       <div class="d-flex align-items-center mx-3">
         <input
           type="time"
           v-model="selectedTime"
-          @blur="selectTime(selectedTime)"
+          @change="selectTime(selectedTime)"
         />
         <i
           class="header-menu-icons bi-trash"
@@ -57,21 +57,18 @@ const toggleDropdown = () => {
     const dropdown = document.querySelector('.time-picker-dropdown');
     if (button && dropdown) {
       const rect = button.getBoundingClientRect();
-      dropdown.style.display = 'block';
       dropdown.style.top = `${rect.bottom + 4}px`;
       dropdown.style.left = `${rect.left}px`;
-    }
-  } else {
-    const dropdown = document.querySelector('.time-picker-dropdown');
-    if (dropdown) {
-      dropdown.style.display = 'none';
     }
   }
 };
 
 const selectTime = (time) => {
-  emit("timeSelected", time);
-  showDropdown.value = false;
+  // 只在时间格式为 HH:mm 时才关闭
+  if (/^\\d{2}:\\d{2}$/.test(time)) {
+    emit("timeSelected", time);
+    showDropdown.value = false;
+  }
 };
 
 const clearTime = () => {
@@ -97,7 +94,6 @@ const handleClickOutside = (event) => {
   const button = document.getElementById('btnTaskTimePicker');
   if (dropdown && button && !dropdown.contains(event.target) && !button.contains(event.target)) {
     showDropdown.value = false;
-    dropdown.style.display = 'none';
   }
 };
 
