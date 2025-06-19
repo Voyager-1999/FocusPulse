@@ -10,64 +10,48 @@
 
 <script setup>
 import { onMounted, ref, onBeforeUnmount } from 'vue'
+import { useTodoListStore } from '../store/todoList.store'
+import dayjs from 'dayjs'
 
-// 响应式数据初始化
 const completedTasks = ref(0)
 const focusMinutes = ref(0)
-let isLoading = ref(false)
+const todoStore = useTodoListStore()
 
-// 获取昨日日期字符串
 function getYesterdayDateStr() {
-  const y = new Date()
-  y.setDate(y.getDate() - 1)
-  return y.toISOString().split('T')[0]
+  return dayjs().subtract(1, 'day').format('YYYYMMDD')
 }
 
-// 加载数据函数
-async function loadSummaryData() {
-  try {
-    isLoading.value = true
-    const yDate = getYesterdayDateStr()
+function getYesterdayIsoDate() {
+  return dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+}
 
-    // 从 localStorage 获取数据
-    const [tasks, pomos] = await Promise.all([
-      JSON.parse(localStorage.getItem('tasks') || '[]'),
-      JSON.parse(localStorage.getItem('pomodoros') || '[]')
-    ])
+function loadSummaryData() {
+  const yesterday = getYesterdayDateStr()
+  const todos = todoStore.getTodosByDate(yesterday)
+  completedTasks.value = todos.filter(t => t.checked).length
 
-    // 计算完成任务数
-    completedTasks.value = tasks.filter(t => 
-      t.completed && t.deadline === yDate
-    ).length
+  const saved = localStorage.getItem('pomodoroData')
+  if (saved) {
+    const data = JSON.parse(saved)
+    const history = data.history || []
+    const yIso = getYesterdayIsoDate()
 
-    // 计算专注时长
-    focusMinutes.value = pomos
-      .filter(p => {
-        try {
-          return p.start_time?.split('T')[0] === yDate && p.type === 'work'
-        } catch {
-          return false
-        }
-      })
-      .reduce((sum, p) => sum + (p.duration || 0), 0)
-  } catch (error) {
-    console.error('加载昨日小结数据失败:', error)
-  } finally {
-    isLoading.value = false
+    focusMinutes.value = history
+      .filter(h => h.type === '工作' && h.time?.startsWith(yIso))
+      .reduce((sum, h) => sum + (h.duration || 0), 0)
   }
 }
 
-// 组件挂载时加载数据
 onMounted(() => {
   loadSummaryData()
 })
 
-// 组件卸载时重置数据
 onBeforeUnmount(() => {
   completedTasks.value = 0
   focusMinutes.value = 0
 })
 </script>
+
 
 <style scoped>
 .yesterday-summary {
