@@ -4,7 +4,12 @@
 
     <div class="summary-card">
       <p>完成任务数：<strong>{{ completedTasks }}</strong></p>
-      <p>专注时长：<strong>{{ focusMinutes }}</strong> 分钟</p>
+      <!-- <p>专注时长：<strong>{{ focusMinutes }}</strong> 分钟</p> -->
+    </div>
+
+    <div class="quote-section" @click="changeQuote" title="点击更换一句励志语录">
+      <p class="quote-text">“{{ currentQuote }}”</p>
+      <p class="quote-note">点击语录即可切换</p>
     </div>
 
     <div class="quote-section" @click="changeQuote" title="点击更换一句励志语录">
@@ -55,7 +60,6 @@ function loadSummaryData() {
   const todos = todoStore.getTodosByDate(yesterday)
   //const todos = todoStore.getTodosByDate(dayjs().subtract(1, 'day').format('YYYYMMDD'))
   completedTasks.value = todos.filter(t => t.checked).length
-  //
   
   const saved = localStorage.getItem('pomodoroData')
   if (saved) {
@@ -65,8 +69,8 @@ function loadSummaryData() {
 
     focusMinutes.value = history
       //.filter(h => h.type === '工作' && h.time?.startsWith(yIso))
-      .filter(h => h.type === '工作' && h.date === yIso)
-
+      //.filter(h => h.type === '工作' && h.date === yIso)
+      .filter(h => h.type === '工作' && h.time?.includes(yIso))
       .reduce((sum, h) => sum + (h.duration || 0), 0)
   }
 }
