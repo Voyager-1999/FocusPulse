@@ -22,7 +22,6 @@
         <input
           type="time"
           v-model="selectedTime"
-          @change="selectTime(selectedTime)"
         />
         <i
           class="header-menu-icons bi-trash"
@@ -47,12 +46,9 @@ const selectedTime = ref(props.time || "");
 const showDropdown = ref(false);
 
 const toggleDropdown = () => {
-  console.log('Toggle clicked, current state:', showDropdown.value);
   showDropdown.value = !showDropdown.value;
-  console.log('New state:', showDropdown.value);
-  
   if (showDropdown.value) {
-    // 获取按钮位置
+    // 定位下拉
     const button = document.getElementById('btnTaskTimePicker');
     const dropdown = document.querySelector('.time-picker-dropdown');
     if (button && dropdown) {
@@ -63,17 +59,29 @@ const toggleDropdown = () => {
   }
 };
 
-const selectTime = (time) => {
-  // 只在时间格式为 HH:mm 时才关闭
-  if (/^\\d{2}:\\d{2}$/.test(time)) {
-    emit("timeSelected", time);
+// 只在点击外部时关闭下拉并传递时间
+const handleClickOutside = (event) => {
+  const dropdown = document.querySelector('.time-picker-dropdown');
+  const button = document.getElementById('btnTaskTimePicker');
+  if (
+    showDropdown.value &&
+    dropdown &&
+    button &&
+    !dropdown.contains(event.target) &&
+    !button.contains(event.target)
+  ) {
     showDropdown.value = false;
+    // 只在关闭时传递时间
+    if (/^\d{2}:\d{2}$/.test(selectedTime.value)) {
+      emit("timeSelected", selectedTime.value);
+    }
   }
 };
 
 const clearTime = () => {
   selectedTime.value = null;
-  selectTime(selectedTime.value);
+  emit("timeSelected", null);
+  showDropdown.value = false;
 };
 
 watch(
@@ -83,21 +91,6 @@ watch(
   }
 );
 
-// Add a watch to monitor showDropdown changes
-watch(showDropdown, (newVal) => {
-  console.log('showDropdown changed to:', newVal);
-});
-
-// 点击外部关闭下拉框
-const handleClickOutside = (event) => {
-  const dropdown = document.querySelector('.time-picker-dropdown');
-  const button = document.getElementById('btnTaskTimePicker');
-  if (dropdown && button && !dropdown.contains(event.target) && !button.contains(event.target)) {
-    showDropdown.value = false;
-  }
-};
-
-// 添加和移除点击外部事件监听
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
 });

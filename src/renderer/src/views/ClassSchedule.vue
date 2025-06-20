@@ -36,7 +36,7 @@
                 contenteditable
                 @input="updateSchedule(day, $event.target.innerText)"
               >
-                {{ schedule[day] }}
+                {{ getScheduleForDay(day) }}
               </div>
             </div>
           </td>
@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import Sticker from '../components/Sticker.vue';
 import sticker from '../assets/sticker.svg'
 import sticker1 from '../assets/sticker1.svg'
@@ -124,9 +124,38 @@ const selectedMonth = ref(new Date().getMonth() + 1);
 const stickersByMonth = ref({}); // { 1: [...], 2: [...], ... }
 let stickerId = 1;
 
+// 按月份存储日程数据
+const scheduleByMonth = ref({});
+
 const currentMonthStickers = computed(() => {
   return stickersByMonth.value[selectedMonth.value] || [];
 });
+
+// 从本地存储加载数据
+const loadData = () => {
+  try {
+    const storedStickers = localStorage.getItem('stickersByMonth');
+    if (storedStickers) {
+      stickersByMonth.value = JSON.parse(storedStickers);
+    }
+    const storedSchedule = localStorage.getItem('scheduleByMonth');
+    if (storedSchedule) {
+      scheduleByMonth.value = JSON.parse(storedSchedule);
+    }
+  } catch (error) {
+    console.error('加载数据失败:', error);
+  }
+};
+
+// 保存数据到本地存储
+const saveData = () => {
+  try {
+    localStorage.setItem('stickersByMonth', JSON.stringify(stickersByMonth.value));
+    localStorage.setItem('scheduleByMonth', JSON.stringify(scheduleByMonth.value));
+  } catch (error) {
+    console.error('保存数据失败:', error);
+  }
+};
 
 function addSticker(imgSrc) {
   showStickerDialog.value = false;
@@ -142,12 +171,14 @@ function addSticker(imgSrc) {
     width: 60,
     height: 60,
   });
+  saveData();
 }
 function updateStickerPosition(idx, pos) {
   const arr = stickersByMonth.value[selectedMonth.value];
   if (arr && arr[idx]) {
     arr[idx].x = pos.x;
     arr[idx].y = pos.y;
+    saveData();
   }
 }
 function updateStickerSize(idx, size) {
@@ -155,11 +186,13 @@ function updateStickerSize(idx, size) {
   if (arr && arr[idx]) {
     arr[idx].width = size.width;
     arr[idx].height = size.height;
+    saveData();
   }
 }
 function deleteSticker(idx) {
   const arr = stickersByMonth.value[selectedMonth.value];
   if (arr) arr.splice(idx, 1);
+  saveData();
 }
 function moveSticker(idx, dir) {
   const arr = stickerImages
@@ -181,8 +214,21 @@ const rows = computed(() => {
   }
   return result;
 });
-// 日程表数据
-const schedule = ref({});
+
+// 根据月份和日期获取日程数据
+const getScheduleForDay = (day) => {
+  return scheduleByMonth.value[selectedMonth.value]?.[day] || '';
+};
+
+// 更新日程表数据
+const updateSchedule = (day, value) => {
+  if (!scheduleByMonth.value[selectedMonth.value]) {
+    scheduleByMonth.value[selectedMonth.value] = {};
+  }
+  scheduleByMonth.value[selectedMonth.value][day] = value;
+  saveData();
+};
+
 // 根据月份设置不同颜色（更浅版）
 const getLightDayColor = (day) => {
   const baseColors = [
@@ -193,10 +239,14 @@ const getLightDayColor = (day) => {
   ];
   return baseColors[selectedMonth.value - 1];
 };
-// 更新日程表数据
-const updateSchedule = (day, value) => {
-  schedule.value[day] = value;
-};
+
+onMounted(() => {
+  loadData();
+});
+
+onBeforeUnmount(() => {
+  saveData();
+});
 </script>
 
 <style scoped>
